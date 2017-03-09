@@ -1,12 +1,10 @@
-grammar cplusplus;
-import cplusplusLex;
+grammar CPP;
+import CPPLex;
 
-s                       : global* main global* EOF ;
-
+cpp                     : global* main global* EOF ;
 
 global                  : globalstatements
                         | func
-                        | func_declaration
                         ;
 
 globalstatements        : include                                       //# include
@@ -24,15 +22,17 @@ datatype                : ID ('<' datatype '>')?
                         | bool_type
                         ;
 
-
-func_sign               : datatype ID '(' parameters? ')'
-                        | 'void' ID '(' parameters? ')'
+template                : 'template' '<' ('class' | 'typename') ID '>' ;
+func                    : template? datatype ID '(' parameters? ')' func_rem
+                        | 'void' ID '(' parameters? ')' func_body
                         ;
-func_declaration        : func_sign ';' ;
+func_rem                : func_body
+                        | ';'
+                        ;
 func_body               : '{' instruction '}' ;
-func                    : func_sign func_body ;
 
-parameters              : datatype ID (',' datatype ID)* ;
+parameters              : datatype ID (',' datatype parameter_type ID)* ;
+parameter_type          : '&' | '*' | '**' | ;
 
 integer_type            : 'char' | 'short' | 'int' | 'long' | 'long' 'long' ;
 float_type              : 'float' | 'double' | 'long' 'double' ;
