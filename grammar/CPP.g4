@@ -1,56 +1,57 @@
 grammar CPP;
-import CPPLex;
 
-// TODO
-// namespaces
-// using namespaces
-// ::
-
+//operators
 cpp                     : global* main global* EOF ;
 
-global                  : include
-                        | typedef
+global                  : typedef
                         | structClass
                         | assignmentBlock
-                        //                        | define
                         | declarationBlock
                         | function
+                        | namespace
+                        | using
+                        | ';'
+                        | MULTILINEMACRO
+                        | DIRECTIVE
                         ;
 
-id                      : '*'* ('&&' | '&')? ID ;
-include                 : '#' 'include' '<' ID ('.' ID)? '>' ;
+namespace               : 'namespace' ID '{' global* '}' ;
+using                   : 'using' 'namespace'? nestedNamespace ';' ;
+nestedNamespace         : ID ('::' ID)* ;
+
+id                      : '*'* ('&&' | '&')? nestedNamespace ;
+path                    : ID ('/' ID)* ;
 typedef                 : 'typedef' datatype ID ';';
 
-datatype                : id ('<' datatype '>')?
+datatype                : 'const'? datatypeDefinition ;
+datatypeDefinition      : nestedNamespace ('<' datatype (',' datatype)* '>')?
                         | 'unsigned'? integerType
                         | floatType
                         | boolType
                         ;
 
-template                : 'template' '<' ('class' | 'typename') id '>' ;
-function                : template? datatype id '(' parameters? ')' functionRem
-                        | 'void' id '(' parameters? ')' functionBody
-                        ;
+template                : 'template' '<' ('class' | 'typename') ID '>' ;
+function                : template? 'inline'? (datatype | 'void') id '(' parameters? ')' functionRem ;
 functionRem             : functionBody
                         | ';'
                         ;
 functionBody            : '{' instruction* '}' ;
 
-parameters              : datatype id (',' datatype id)* ;
+parameters              : datatype properDeclaration? (',' datatype properDeclaration?)* ;
 
-structClass             : template? ('struct' | 'class') id inheritance?
+structClass             : template? ('struct' | 'class') ID inheritance?
                           structClassBody ;
 
-inheritance             : ':' encapsulation? id ('<' datatype '>')?
-                         (',' encapsulation? id ('<' datatype '>')?)* ;
+inheritance             : ':' encapsulation? ID ('<' datatype '>')?
+                         (',' encapsulation? ID ('<' datatype '>')?)* ;
 encapsulation           : 'private' | 'protected' | 'public' ;
-structClassBody         : '{' globalClass* '}' ';' ;
+structClassBody         : '{' globalClass* '}' (properDeclaration (',' properDeclaration)*)? ';' ;
 globalClass             : encapsulation ':'
                         | classConstructor
                         | global
                         ;
 classConstructor        : ID '(' parameters? ')'
-                          (':' id '(' expression ')' (',' id '(' expression ')')*)? scope ;
+                          (':' ID '(' expression? ')' (',' ID '(' expression? ')')*)? scope ;
 
 integerType             : 'char' | 'short' | 'int' | 'long' | 'long' 'long' ;
 floatType               : 'float' | 'double' | 'long' 'double' ;
@@ -69,12 +70,14 @@ instruction             : declarationBlock
                         | 'break' ';'
                         | 'continue' ';'
                         | 'return' expression? ';'
+                        | expression (',' expression)*
                         ;
 
 scope                   : '{' instruction* '}' ;
 
 declarationBlock        : 'const'? 'static'? declaration ';' ;
-declaration             : datatype id declarationType? (',' id declarationType?)* ;
+declaration             : datatype properDeclaration ;
+properDeclaration       : id declarationType? (',' id declarationType?)* ;
 declarationType         : properAssignment
                         | '(' expression (',' expression)* ')'
                         | ('[' expression? ']')+
@@ -91,9 +94,11 @@ doWhileBody             : scope
                         | instruction
                         ;
 
-forBlock                : 'for' '(' forExpression? ';' expression? ';' forExpression? ')'
+forBlock                : 'for' '(' (classicFor | forEach) ')'
                           controlStructureBody ;
 forExpression           : primaryExpression (',' primaryExpression)* ;
+classicFor              : forExpression? ';' expression? ';' forExpression? ;
+forEach                 : 'const'? ('auto' | datatype) id ':' callSomething ;
 
 switchBlock             : 'switch' '(' primaryExpression ')' switchBody ;
 switchBody              : instruction
@@ -114,8 +119,6 @@ controlStructureBody    : scope
                         | ';'
                         ;
 
-//                        | '.' '->' '[]'
-
 assignment              : callSomething properAssignment ;
 properAssignment        : (assignmentOp callSomething)* assignmentOp expression ;
 
@@ -124,6 +127,7 @@ expression              : expression binOp expression
                         | unOp1 expression
                         | unOp2 expression2
                         | expression2
+                        | expression '?' expression ':' expression
                         ;
 
 expression2             : '(' expression ')'
@@ -134,7 +138,8 @@ expression2             : '(' expression ')'
                         | '(' datatype ')' expression
                         ;
 
-callSomething           : id callFunction? (accessBrackets? accessOp callSomething)? accessBrackets* increaseOp?;
+callSomething           : id callFunction? (accessBrackets? accessOp callSomething)?
+                          accessBrackets? increaseOp?;
 callFunction            : '(' functionArguments? ')' ;
 functionArguments       : expression (',' expression)* ;
 
@@ -144,11 +149,11 @@ accessOp                : '.' | '->' ;
 accessBrackets          : ('[' expression ']')+  ;
 
 binOp                   : '==' | '!=' | '<' | '>' | '<=' | '>='
-                        | '+' | '-' | '*' | '/'
+                        | '+' | '-' | '*' | '/' | '%'
                         | '>>' | '<<' | '&' | '|' | '^' | 'and' | 'or' | 'xor'
                         | '&&' | '||' ;
 
-assignmentOp            : '=' | '+=' | '-=' | '/=' | '*='
+assignmentOp            : '=' | '+=' | '-=' | '/=' | '*=' | '%='
                         | '&=' | '|=' | '^=' | '>>=' | '<<=' ;
 
 unOp1                   : '!' | '~' ;
@@ -158,6 +163,21 @@ increaseOp              : '--' | '++' ;
 
 main                    : 'int'? 'main' '(' parameters? ')' functionBody ;
 
+ID                      : [a-zA-Z_][a-zA-Z0-9_]* ;
+
+COMMENT                 : '/*' .*? '*/' -> skip ;
+LINE_COMMENT            : '//' ~[\r\n]* -> skip ;
+WS		                : [ \t\r\n]+ -> skip ;
+INT                     : [0-9]+;
+LONG                    : [0-9]+[lL];
+LONGLONG                : [0-9]+[lL][lL];
+CHAR                    : ('\'') (~['\''] | ['\\'a-z]) ('\'');
+DOUBLE                  : [0-9]+[.][0-9]+;
+BOOL                    : 'true' | 'false' ;
+STRING                  : ('\'' | '"') ~['\'"']* ('\'' | '"');
+
+MULTILINEMACRO          : '#' (~[\n]*? '\\' '\r'? '\n')+ ~[\n]+ -> channel(HIDDEN) ;
+DIRECTIVE               : '#' ~[\n]* -> channel(HIDDEN) ;
 
 
 
