@@ -34,10 +34,6 @@ public class LexerPractice {
         TokenStream inputStream = parser.getInputStream();
         for (int i = 0; i < inputStream.size(); ++i) {
             Token token = inputStream.get(i);
-            //EOF type
-            if (token.getType() == -1)
-                break;
-
             output.append("<" + token.getText() + "," + token.getLine()
                         + "," + (token.getCharPositionInLine() + 1) + ">");
 
