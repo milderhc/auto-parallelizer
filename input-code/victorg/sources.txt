@@ -1,0 +1,5 @@
+input-code/victorg/339D.cpp
+input-code/victorg/208D.cpp
+input-code/victorg/474D.cpp
+input-code/victorg/617E.cpp
+input-code/victorg/555E.cpp

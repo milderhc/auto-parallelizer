@@ -268,6 +268,18 @@ public class CPPBaseListener implements CPPListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExpressionList(CPPParser.ExpressionListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpressionList(CPPParser.ExpressionListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterIntegerType(CPPParser.IntegerTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -587,6 +599,18 @@ public class CPPBaseListener implements CPPListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExpression2(CPPParser.Expression2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCurlyBrackets(CPPParser.CurlyBracketsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCurlyBrackets(CPPParser.CurlyBracketsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

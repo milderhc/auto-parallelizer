@@ -218,6 +218,16 @@ public interface CPPListener extends ParseTreeListener {
 	 */
 	void exitClassConstructor(CPPParser.ClassConstructorContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link CPPParser#expressionList}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionList(CPPParser.ExpressionListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CPPParser#expressionList}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionList(CPPParser.ExpressionListContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link CPPParser#integerType}.
 	 * @param ctx the parse tree
 	 */
@@ -487,6 +497,16 @@ public interface CPPListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpression2(CPPParser.Expression2Context ctx);
+	/**
+	 * Enter a parse tree produced by {@link CPPParser#curlyBrackets}.
+	 * @param ctx the parse tree
+	 */
+	void enterCurlyBrackets(CPPParser.CurlyBracketsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CPPParser#curlyBrackets}.
+	 * @param ctx the parse tree
+	 */
+	void exitCurlyBrackets(CPPParser.CurlyBracketsContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link CPPParser#callSomething}.
 	 * @param ctx the parse tree

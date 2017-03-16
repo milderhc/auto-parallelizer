@@ -51,7 +51,8 @@ globalClass             : encapsulation ':'
                         | global
                         ;
 classConstructor        : ID '(' parameters? ')'
-                          (':' ID '(' expression? ')' (',' ID '(' expression? ')')*)? scope ;
+                          (':' ID '(' expressionList? ')' (',' ID '(' expressionList? ')')*)? scope ;
+expressionList          : expression (',' expression)* ;
 
 integerType             : 'char' | 'short' | 'int' | 'long' | 'long' 'long' ;
 floatType               : 'float' | 'double' | 'long' 'double' ;
@@ -70,7 +71,7 @@ instruction             : declarationBlock
                         | 'break' ';'
                         | 'continue' ';'
                         | 'return' expression? ';'
-                        | expression (',' expression)*
+                        | expression (',' expression)* ';'
                         ;
 
 scope                   : '{' instruction* '}' ;
@@ -136,8 +137,10 @@ expression2             : '(' expression ')'
                         | callSomething
                         | 'sizeof' expression
                         | '(' datatype ')' expression
+                        | '{' curlyBrackets? '}'
                         ;
 
+curlyBrackets           : expression (',' expression)* ;
 callSomething           : id callFunction? (accessBrackets? accessOp callSomething)?
                           accessBrackets? increaseOp?;
 callFunction            : '(' functionArguments? ')' ;
@@ -148,16 +151,16 @@ value                   : INT | LONG | LONGLONG | CHAR | BOOL | DOUBLE | STRING 
 accessOp                : '.' | '->' ;
 accessBrackets          : ('[' expression ']')+  ;
 
-/* Right angle bracket (C++11) - Solution '>>' and '>>=' are not tokens, only '>'
+/* Right angle bracket (C++11) - Solution '>>' is not token, only '>'
    This fixes vector<vector<int>> issue
  */
-binOp                   : '==' | '!=' | '<' | '>' | '<=' | '>='
+binOp                   : '==' | '!=' | '<' | '>'('>')? | '<=' | '>='
                         | '+' | '-' | '*' | '/' | '%'
                         | '<<' | '&' | '|' | '^' | 'and' | 'or' | 'xor'
                         | '&&' | '||' ;
 
 assignmentOp            : '=' | '+=' | '-=' | '/=' | '*=' | '%='
-                        | '&=' | '|=' | '^=' | '<<=' ;
+                        | '&=' | '|=' | '^=' | '<<=' | '>>=' ;
 
 unOp1                   : '!' | '~' ;
 unOp2                   : '-' | '+' | increaseOp ;
@@ -175,7 +178,7 @@ INT                     : [0-9]+;
 LONG                    : [0-9]+[lL];
 LONGLONG                : [0-9]+[lL][lL];
 CHAR                    : ('\'') (~['\''] | ['\\'a-z]) ('\'');
-DOUBLE                  : [0-9]+[.][0-9]+;
+DOUBLE                  : [0-9]+[.][0-9]+([e][-]?[0-9]+)? | [0-9]+([e][-]?[0-9]+)? ;
 BOOL                    : 'true' | 'false' ;
 STRING                  : ('\'' | '"') ~['\'"']* ('\'' | '"');
 

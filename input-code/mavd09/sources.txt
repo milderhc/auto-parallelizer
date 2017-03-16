@@ -1,0 +1,7 @@
+input-code/mavd09/782B.cpp
+input-code/mavd09/782C.cpp
+input-code/mavd09/782A.cpp
+input-code/mavd09/779E.cpp
+input-code/mavd09/779C.cpp
+input-code/mavd09/779D.cpp
+input-code/mavd09/779C.cpp

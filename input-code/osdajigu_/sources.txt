@@ -1,0 +1,5 @@
+input-code/osdajigu_/782D.cpp
+input-code/osdajigu_/782B.cpp
+input-code/osdajigu_/782B.cpp
+input-code/osdajigu_/782B.cpp
+input-code/osdajigu_/782B.cpp

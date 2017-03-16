@@ -6,13 +6,12 @@ import gen.CPPLexer;
 import gen.CPPParser;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
+import util.CodeAcquirer;
 //import qb64v1parsing.*;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
+import java.util.InputMismatchException;
 
 public class LexerPractice {
 
@@ -52,6 +51,7 @@ public class LexerPractice {
     public static void main(String[] args) throws Exception {
         LexerPractice lexerPractice = new LexerPractice();
 
+        //Runs defined codes
         for (int i = 1; i <= SAMPLES; ++i) {
             String in = "samples/in" + i + ".txt";
             String out = "samples/out" + i + ".txt";
@@ -59,5 +59,27 @@ public class LexerPractice {
             lexerPractice.generateOutput();
         }
 
+        //Runds downloaded codes
+        lexerPractice.runSolutionsOf("milderhc");
+        lexerPractice.runSolutionsOf("niquefa_diego");
+        lexerPractice.runSolutionsOf("DanielK");
+        lexerPractice.runSolutionsOf("osdajigu_");
+        lexerPractice.runSolutionsOf("victorg");
+        lexerPractice.runSolutionsOf("mavd09");
+    }
+
+    public void runSolutionsOf (String handle) throws Exception {
+        final String sourcesFilename = "sources.txt";
+        String sourcesList = CodeAcquirer.INPUT_CODE_FOLDER + "/" + handle + "/" + sourcesFilename;
+
+        BufferedReader bf = new BufferedReader(new FileReader(sourcesList));
+        String codeFilename;
+
+        while ((codeFilename = bf.readLine()) != null) {
+            String outputFilename = codeFilename.replace(".cpp", "LexAnalysis.txt");
+            System.out.println(codeFilename + " " + outputFilename);
+            setNewFiles(codeFilename, outputFilename);
+            generateOutput();
+        }
     }
 }

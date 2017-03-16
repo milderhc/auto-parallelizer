@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class CodeAcquirer {
 
-    private final String INPUT_CODE_FOLDER = "input-code";
+    public static final String INPUT_CODE_FOLDER = "input-code";
 
     private final String KEY = "0f7bea9e70d1a3282ad4a20767d3bb515609f2fa";
     private final String SECRET = ":v";
@@ -172,12 +172,12 @@ public class CodeAcquirer {
 
     public void printToFile (String filename, String s) throws FileNotFoundException, UnsupportedEncodingException {
         PrintWriter writer = new PrintWriter(filename, "UTF-8");
-        writer.println(s);
+        writer.print(s);
         writer.close();
     }
 
     public static void main(String[] args) throws Exception {
         CodeAcquirer codeAcquirer = new CodeAcquirer();
-        codeAcquirer.printCodeSubmission("milderhc", 1, 10);
+        codeAcquirer.printCodeSubmission("mavd09", 1, 10);
     }
 }
