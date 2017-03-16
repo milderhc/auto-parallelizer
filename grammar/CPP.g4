@@ -148,13 +148,16 @@ value                   : INT | LONG | LONGLONG | CHAR | BOOL | DOUBLE | STRING 
 accessOp                : '.' | '->' ;
 accessBrackets          : ('[' expression ']')+  ;
 
+/* Right angle bracket (C++11) - Solution '>>' and '>>=' are not tokens, only '>'
+   This fixes vector<vector<int>> issue
+ */
 binOp                   : '==' | '!=' | '<' | '>' | '<=' | '>='
                         | '+' | '-' | '*' | '/' | '%'
-                        | '>>' | '<<' | '&' | '|' | '^' | 'and' | 'or' | 'xor'
+                        | '<<' | '&' | '|' | '^' | 'and' | 'or' | 'xor'
                         | '&&' | '||' ;
 
 assignmentOp            : '=' | '+=' | '-=' | '/=' | '*=' | '%='
-                        | '&=' | '|=' | '^=' | '>>=' | '<<=' ;
+                        | '&=' | '|=' | '^=' | '<<=' ;
 
 unOp1                   : '!' | '~' ;
 unOp2                   : '-' | '+' | increaseOp ;

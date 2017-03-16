@@ -47,7 +47,7 @@ public class LexerPractice {
         writer.close();
     }
 
-    public static int SAMPLES = 2;
+    public static int SAMPLES = 3;
 
     public static void main(String[] args) throws Exception {
         LexerPractice lexerPractice = new LexerPractice();
