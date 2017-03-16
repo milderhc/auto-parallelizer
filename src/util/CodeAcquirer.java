@@ -131,20 +131,28 @@ public class CodeAcquirer {
      */
     public void printCodeSubmission (String handle, int from, int count) throws Exception {
         JsonArray submissions = getSubmissions(handle, from, count);
+        createFolderForUser(handle);
+
+        StringBuilder sources = new StringBuilder();
+
         for (JsonObject result : submissions.getValuesAs(JsonObject.class)) {
             JsonNumber id = result.getJsonNumber("id");
             JsonNumber contestId = result.getJsonNumber("contestId");
             JsonString verdict = result.getJsonString("verdict");
             JsonString index = result.getJsonObject("problem").getJsonString("index");
+            JsonString programmingLanguage = result.getJsonString("programmingLanguage");
 
-            //If the code got Accepted
-            if (verdict.getString().equals("OK")) {
+            //If the code got Accepted and is written in C++
+            if (programmingLanguage.getString().indexOf("C++") != -1 &&
+                    verdict.getString().equals("OK")) {
                 String code = getCode(contestId.toString(), id.toString());
-
-                createFolderForUser(handle);
-                printCodeToFile(handle, contestId.intValue(), index.getString(), code);
+                sources.append(
+                        printCodeToFile(handle, contestId.intValue(), index.getString(), code) + "\n");
             }
         }
+
+        printToFile(INPUT_CODE_FOLDER + "/" + handle + "/" + "sources.txt",
+                sources.toString());
     }
 
     private void createFolderForUser (String handle) {
@@ -155,16 +163,21 @@ public class CodeAcquirer {
         }
     }
 
-    public void printCodeToFile (String handle, int contestId, String index, String code) throws FileNotFoundException, UnsupportedEncodingException {
+    public String printCodeToFile (String handle, int contestId, String index, String code) throws FileNotFoundException, UnsupportedEncodingException {
         String filename = contestId + index + ".cpp";
         String folder = INPUT_CODE_FOLDER + "/" + handle + "/";
-        PrintWriter writer = new PrintWriter(folder + filename, "UTF-8");
-        writer.println(code);
+        printToFile(folder + filename, code);
+        return folder + filename;
+    }
+
+    public void printToFile (String filename, String s) throws FileNotFoundException, UnsupportedEncodingException {
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        writer.println(s);
         writer.close();
     }
 
     public static void main(String[] args) throws Exception {
         CodeAcquirer codeAcquirer = new CodeAcquirer();
-        codeAcquirer.printCodeSubmission("milderhc", 1, 5);
+        codeAcquirer.printCodeSubmission("niquefa_diego", 1, 10);
     }
 }
