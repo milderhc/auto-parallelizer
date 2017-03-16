@@ -61,7 +61,7 @@ public class CodeAcquirer {
         }
         Collections.sort(params);
 
-        String begin = "834986";
+        String begin = "875784";
         StringBuilder paramsString = new StringBuilder(begin + "/" + method + "?");
         StringBuilder requestString = new StringBuilder(PREFIX + method + "?");
         for (int i = 0; i < params.size(); ++i) {
@@ -178,6 +178,6 @@ public class CodeAcquirer {
 
     public static void main(String[] args) throws Exception {
         CodeAcquirer codeAcquirer = new CodeAcquirer();
-        codeAcquirer.printCodeSubmission("niquefa_diego", 1, 10);
+        codeAcquirer.printCodeSubmission("milderhc", 1, 10);
     }
 }
