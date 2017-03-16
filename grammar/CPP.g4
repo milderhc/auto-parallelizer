@@ -1,7 +1,9 @@
 grammar CPP;
 
 //operators
-cpp                     : global* main global* EOF ;
+cpp                     : global* mainBlock? EOF ;
+
+mainBlock               : main global* ;
 
 global                  : typedef
                         | structClass
@@ -31,7 +33,7 @@ datatypeDefinition      : nestedNamespace ('<' datatype (',' datatype)* '>')?
                         ;
 
 template                : 'template' '<' ('class' | 'typename') ID '>' ;
-function                : template? 'inline'? (datatype | 'void') id '(' parameters? ')' functionRem ;
+function                : template? 'inline'? (datatype | 'void') id '(' parameters? ')' 'const'? functionRem ;
 functionRem             : functionBody
                         | ';'
                         ;
@@ -141,15 +143,17 @@ expression2             : '(' expression ')'
                         ;
 
 curlyBrackets           : expression (',' expression)* ;
-callSomething           : id callFunction? (accessBrackets? accessOp callSomething)?
-                          accessBrackets? increaseOp?;
+callSomething           : id callFunction? (accessBrackets* accessOp callSomething)?
+                          accessBrackets* increaseOp?;
 callFunction            : '(' functionArguments? ')' ;
 functionArguments       : expression (',' expression)* ;
 
 value                   : INT | LONG | LONGLONG | CHAR | BOOL | DOUBLE | STRING ;
 
 accessOp                : '.' | '->' ;
-accessBrackets          : ('[' expression ']')+  ;
+accessBrackets          : '[' expression ']'
+                        | '(' expressionList ')'
+                        ;
 
 /* Right angle bracket (C++11) - Solution '>>' is not token, only '>'
    This fixes vector<vector<int>> issue

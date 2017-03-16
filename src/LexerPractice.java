@@ -51,21 +51,21 @@ public class LexerPractice {
     public static void main(String[] args) throws Exception {
         LexerPractice lexerPractice = new LexerPractice();
 
-        //Runs defined codes
-        for (int i = 1; i <= SAMPLES; ++i) {
-            String in = "samples/in" + i + ".txt";
-            String out = "samples/out" + i + ".txt";
-            lexerPractice.setNewFiles(in, out);
-            lexerPractice.generateOutput();
-        }
-
-        //Runds downloaded codes
+        //Runs downloaded codes
         lexerPractice.runSolutionsOf("milderhc");
         lexerPractice.runSolutionsOf("niquefa_diego");
         lexerPractice.runSolutionsOf("DanielK");
         lexerPractice.runSolutionsOf("osdajigu_");
         lexerPractice.runSolutionsOf("victorg");
         lexerPractice.runSolutionsOf("mavd09");
+
+        //Runs external codes
+        for (int i = 1; i <= SAMPLES; ++i) {
+            String in = "samples/in" + i + ".txt";
+            String out = "samples/out" + i + ".txt";
+            lexerPractice.setNewFiles(in, out);
+            lexerPractice.generateOutput();
+        }
     }
 
     public void runSolutionsOf (String handle) throws Exception {

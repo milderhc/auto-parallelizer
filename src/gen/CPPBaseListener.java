@@ -28,6 +28,18 @@ public class CPPBaseListener implements CPPListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMainBlock(CPPParser.MainBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMainBlock(CPPParser.MainBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterGlobal(CPPParser.GlobalContext ctx) { }
 	/**
 	 * {@inheritDoc}

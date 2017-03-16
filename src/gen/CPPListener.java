@@ -18,6 +18,16 @@ public interface CPPListener extends ParseTreeListener {
 	 */
 	void exitCpp(CPPParser.CppContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link CPPParser#mainBlock}.
+	 * @param ctx the parse tree
+	 */
+	void enterMainBlock(CPPParser.MainBlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CPPParser#mainBlock}.
+	 * @param ctx the parse tree
+	 */
+	void exitMainBlock(CPPParser.MainBlockContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link CPPParser#global}.
 	 * @param ctx the parse tree
 	 */
