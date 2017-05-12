@@ -2,16 +2,21 @@
  * Created by milderhc on 26/02/17.
  */
 
+
 import gen.CPPLexer;
 import gen.CPPParser;
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
 import util.CodeAcquirer;
-//import qb64v1parsing.*;
 
-import java.io.*;
-import java.util.*;
-import java.util.InputMismatchException;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.PrintWriter;
+
+//import qb64v1parsing.*;
 
 public class LexerPractice {
 
