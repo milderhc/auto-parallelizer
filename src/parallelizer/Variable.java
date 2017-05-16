@@ -1,3 +1,5 @@
+package parallelizer;
+
 /**
  * Created by milderhc on 12/05/17.
  */

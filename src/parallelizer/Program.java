@@ -1,13 +1,19 @@
+package parallelizer;
+
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
  * Created by milderhc on 12/05/17.
  */
 public class Program {
+
+    private Set<String> definedFunctions;
 
     private StringBuilder translatedCode;
     public static final String OUTPUT_CODE_FOLDER = "output-code";
@@ -17,6 +23,7 @@ public class Program {
     public Program () {
         translatedCode = new StringBuilder();
         flowGraph = new TreeMap<>();
+        definedFunctions = new HashSet<>();
     }
 
     public void add (String newContent) {
@@ -36,5 +43,13 @@ public class Program {
         PrintWriter writer = new PrintWriter(filename, "UTF-8");
         writer.print(s);
         writer.close();
+    }
+
+    public Set<String> getDefinedFunctions() {
+        return definedFunctions;
+    }
+
+    public void setDefinedFunctions(Set<String> definedFunctions) {
+        this.definedFunctions = definedFunctions;
     }
 }
