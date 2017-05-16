@@ -1,15 +1,16 @@
 package parallelizer.model;
 
 import gen.CPPParser;
+import parallelizer.Translator;
 
-import java.util.Map;
+import java.util.LinkedList;
 
 /**
  * Created by milderhc on 16/05/17.
  */
 public class Function implements Comparable<Function> {
 
-    private Map<Block, Block> flowGraph;
+    private LinkedList<Block> flowGraph;
     private String id;
     private CPPParser.FunctionBodyContext ctx;
 
@@ -22,10 +23,6 @@ public class Function implements Comparable<Function> {
         this.id = id;
     }
 
-    public Map<Block, Block> getFlowGraph() {
-        return flowGraph;
-    }
-
     public String getId() {
         return id;
     }
@@ -33,6 +30,51 @@ public class Function implements Comparable<Function> {
     public CPPParser.FunctionBodyContext getCtx() {
         return ctx;
     }
+
+
+    public void buildFlowGraph () {
+        Block currentBlock = new Block();
+
+        for (CPPParser.InstructionContext inst : ctx.instruction()) {
+            if (inst.forBlock() != null) {
+                Block next = new Block();
+                flowGraph.add(currentBlock);
+                currentBlock = next;
+            } else if (inst.whileBlock() != null) {
+                Block next = new Block();
+                flowGraph.add(currentBlock);
+                currentBlock = next;
+            } else if (inst.doWhileBlock() != null) {
+                Block next = new Block();
+                flowGraph.add(currentBlock);
+                currentBlock = next;
+            } else if (inst.scope() != null) {
+                Block next = new Block();
+                flowGraph.add(currentBlock);
+                currentBlock = next;
+            } else if (inst.ifBlock() != null) {
+                Block next = new Block();
+                flowGraph.add(currentBlock);
+                currentBlock = next;
+            } else if (inst.callSomething() != null && inst.callSomething().callFunction() != null) {
+                String name = Function.getVirtualName(inst.callSomething());
+                if (Translator.program.getDefinedFunctions().containsKey(name)) {
+                    Block next = new Block();
+                    flowGraph.add(currentBlock);
+                    currentBlock = next;
+                } else {
+                    currentBlock.addInstruction(inst);
+                }
+            } else {
+                currentBlock.addInstruction(inst);
+            }
+        }
+
+        if (!currentBlock.getInstructions().isEmpty())
+            flowGraph.add(currentBlock);
+    }
+
+
 
     @Override
     public int compareTo(Function o) {
