@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import visitors.CPPVisitor;
+import visitors.CallGraphVisitor;
 import visitors.FunctionVisitor;
 
 import java.io.FileInputStream;
@@ -20,7 +21,7 @@ import java.io.UnsupportedEncodingException;
  */
 public class Translator {
 
-    private Program program;
+    public static Program program;
 
     private void visitFunctions (CPPParser parser) {
         ParseTree tree = parser.cpp();
@@ -47,6 +48,12 @@ public class Translator {
         visitor.getProgram().exportCode("output.cpp");
     }
 
+    private void buildCallGraph (CPPParser parser) {
+        ParseTree tree = parser.cpp();
+        CallGraphVisitor visitor = new CallGraphVisitor(program);
+        visitor.visit(tree);
+    }
+
 
     public void translate (String inputFilename) throws IOException {
         ANTLRInputStream input;
@@ -61,12 +68,21 @@ public class Translator {
         program = new Program();
 
         visitFunctions(parser);
-        program.getDefinedFunctions().forEach(xd -> System.out.println(xd));
+        parser.reset();
+        buildCallGraph(parser);
 
+        program.getDefinedFunctions().forEach((xd, nothing) -> System.out.println(xd));
+
+        program.getCallGraph().forEach((f, neigh) -> {
+            System.out.println(f.getId() + " --");
+            neigh.forEach(n -> System.out.print(n.getId()));
+            System.out.println();
+        });
     }
 
     public static void main(String[] args) throws IOException {
         String source = "input-code/DanielK/782D.cpp";
+//        String source = "input-code/input.cpp";
 
         Translator translator = new Translator();
         translator.translate(source);

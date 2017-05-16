@@ -134,9 +134,9 @@ expression              : expression binOp expression
                         ;
 
 expression2             : '(' expression ')'
+                        | callSomething
                         | datatype ('(' functionArguments? ')')? ('[' expression ']')*
                         | value
-                        | callSomething
                         | 'sizeof' expression
                         | '(' datatype ')' expression
                         | '{' curlyBrackets? '}'
