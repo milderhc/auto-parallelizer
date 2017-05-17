@@ -109,8 +109,8 @@ public class Translator {
             System.out.println();
         });
 
-        System.out.println("ORDER");
-        functionsOrder.forEach(current -> System.out.println(current.getId()));
+        //System.out.println("ORDER");
+        //functionsOrder.forEach(current -> System.out.println(current.getId()));
     }
 
     public static void main(String[] args) throws IOException {
