@@ -22,4 +22,8 @@ public class Block {
     public List<CPPParser.InstructionContext> getInstructions() {
         return instructions;
     }
+
+    public void print() {
+        instructions.forEach( inst -> System.out.println( inst.getText() ) );
+    }
 }

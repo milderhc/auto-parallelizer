@@ -23,7 +23,7 @@ public class CallGraphVisitor<T> extends CPPBaseVisitor<T> {
     @Override
     public T visitMain (CPPParser.MainContext ctx) {
         currentParent = "main";
-        program.getCallGraph().put(new Function("main"), new LinkedList<>());
+        program.getCallGraph().put( program.getMain(), new LinkedList<>());
         return visitChildren(ctx);
     }
 

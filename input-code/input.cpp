@@ -14,6 +14,10 @@ int main () {
     function(a);
     function(a, b);
     hola();
-
+    x;
+    a = 1;
+    asdf = 234;
+    asss = 123+123;
+    built();
     builtin();
 }

@@ -1,4 +1,4 @@
-package parallelizer.model;
+    package parallelizer.model;
 
 import gen.CPPParser;
 import parallelizer.Translator;
@@ -17,6 +17,7 @@ public class Function implements Comparable<Function> {
     public Function(String id, CPPParser.FunctionBodyContext ctx) {
         this.id = id;
         this.ctx = ctx;
+        this.flowGraph = new LinkedList<>();
     }
 
     public Function(String id) {
@@ -34,33 +35,45 @@ public class Function implements Comparable<Function> {
 
     public void buildFlowGraph () {
         Block currentBlock = new Block();
-
         for (CPPParser.InstructionContext inst : ctx.instruction()) {
+            boolean empty = currentBlock.getInstructions().isEmpty();
             if (inst.forBlock() != null) {
-                Block next = new Block();
                 flowGraph.add(currentBlock);
+                Block next = new Block();
+                if( empty ) currentBlock.addInstruction( inst );
+                else next.addInstruction( inst );
                 currentBlock = next;
             } else if (inst.whileBlock() != null) {
-                Block next = new Block();
                 flowGraph.add(currentBlock);
+                Block next = new Block();
+                if( empty ) currentBlock.addInstruction( inst );
+                else next.addInstruction( inst );
                 currentBlock = next;
             } else if (inst.doWhileBlock() != null) {
-                Block next = new Block();
                 flowGraph.add(currentBlock);
+                Block next = new Block();
+                if( empty ) currentBlock.addInstruction( inst );
+                else next.addInstruction( inst );
                 currentBlock = next;
             } else if (inst.scope() != null) {
-                Block next = new Block();
                 flowGraph.add(currentBlock);
+                Block next = new Block();
+                if( empty ) currentBlock.addInstruction( inst );
+                else next.addInstruction( inst );
                 currentBlock = next;
             } else if (inst.ifBlock() != null) {
-                Block next = new Block();
                 flowGraph.add(currentBlock);
+                Block next = new Block();
+                if( empty ) currentBlock.addInstruction( inst );
+                else next.addInstruction( inst );
                 currentBlock = next;
             } else if (inst.callSomething() != null && inst.callSomething().callFunction() != null) {
                 String name = Function.getVirtualName(inst.callSomething());
                 if (Translator.program.getDefinedFunctions().containsKey(name)) {
-                    Block next = new Block();
                     flowGraph.add(currentBlock);
+                    Block next = new Block();
+                    if( empty ) currentBlock.addInstruction( inst );
+                    else next.addInstruction( inst );
                     currentBlock = next;
                 } else {
                     currentBlock.addInstruction(inst);
@@ -72,6 +85,14 @@ public class Function implements Comparable<Function> {
 
         if (!currentBlock.getInstructions().isEmpty())
             flowGraph.add(currentBlock);
+    }
+
+    public void printFlowGraph() {
+        int index = 0;
+        for( Block block : flowGraph ) {
+            System.out.println( "Block#" + (index++) );
+            block.print();
+        }
     }
 
 

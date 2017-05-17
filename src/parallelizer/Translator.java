@@ -109,12 +109,23 @@ public class Translator {
             System.out.println();
         });
 
-        //System.out.println("ORDER");
-        //functionsOrder.forEach(current -> System.out.println(current.getId()));
+        System.out.println("ORDER");
+        functionsOrder.forEach(current -> System.out.println(current.getId()) );
+
+        System.out.println();
+        functionsOrder.forEach( f -> {
+            System.out.println("FUNCTION " + f.getId() );
+            System.out.println("FLOW GRAPH");
+            f.buildFlowGraph();
+            f.printFlowGraph();
+
+        });
+        
     }
 
     public static void main(String[] args) throws IOException {
 //        String source = "input-code/DanielK/782D.cpp";
+        //String source = "C:/Users/Osman/git/auto-parallelizer/input-code/input.cpp";
         String source = "input-code/input.cpp";
 
         Translator translator = new Translator();
