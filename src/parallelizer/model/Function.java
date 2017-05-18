@@ -3,9 +3,12 @@
 import gen.CPPParser;
 import parallelizer.Translator;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Set;
 
-/**
+    /**
  * Created by milderhc on 16/05/17.
  */
 public class Function implements Comparable<Function> {
@@ -13,6 +16,7 @@ public class Function implements Comparable<Function> {
     private LinkedList<Block> flowGraph;
     private String id;
     private CPPParser.FunctionBodyContext ctx;
+    private Set<String> aliveVariables, deadVariables; //in case a Block is just a function call
 
     public Function(String id, CPPParser.FunctionBodyContext ctx) {
         this.id = id;
@@ -36,11 +40,7 @@ public class Function implements Comparable<Function> {
     public void buildFlowGraph () {
         Block currentBlock = new Block();
         for (CPPParser.InstructionContext inst : ctx.instruction()) {
-            if (inst.forBlock() != null || inst.whileBlock() != null || inst.doWhileBlock() != null
-             || inst.scope() != null    || inst.ifBlock() != null    || (inst.callSomething() != null &&
-                inst.callSomething().callFunction() != null &&
-                    Translator.program.getDefinedFunctions().containsKey( Function.getVirtualName(inst.callSomething()))) ) {
-
+            if ( isScope(inst) ) {
                 flowGraph.add(currentBlock);
                 if( currentBlock.getInstructions().isEmpty() ) currentBlock.addInstruction( inst );
                 else {
@@ -59,6 +59,13 @@ public class Function implements Comparable<Function> {
             flowGraph.add(currentBlock);
     }
 
+    private boolean isScope(CPPParser.InstructionContext inst) {
+        return inst.forBlock() != null || inst.whileBlock() != null || inst.doWhileBlock() != null
+                || inst.scope() != null    || inst.ifBlock() != null    ||
+                (inst.callSomething() != null && inst.callSomething().callFunction() != null &&
+                Translator.program.getDefinedFunctions().containsKey( Function.getVirtualName(inst.callSomething())));
+    }
+
     public void printFlowGraph() {
         int index = 0;
         for( Block block : flowGraph ) {
@@ -68,12 +75,18 @@ public class Function implements Comparable<Function> {
     }
 
     public void parallelizeBlocks() {
-        flowGraph.forEach( block -> getLiveDeadVariables(block) );
-        //Bind live and dead variables to parallelize
+        getAliveDeadVariables();
+        //Make the dependencies between blocks with the information of live and dead variables
+        //Parallelize the blocks that don't have dependencies
     }
 
-    private void getLiveDeadVariables( Block block ) {
-
+    private void getAliveDeadVariables() {
+        aliveVariables = new HashSet<>();
+        deadVariables = new HashSet<>();
+        Iterator<Block> it = flowGraph.descendingIterator();
+        while( it.hasNext() ) {
+            it.next().getAliveDeadVariables( aliveVariables, deadVariables );
+        }
     }
 
     @Override
