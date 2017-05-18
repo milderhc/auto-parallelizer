@@ -36,49 +36,21 @@ public class Function implements Comparable<Function> {
     public void buildFlowGraph () {
         Block currentBlock = new Block();
         for (CPPParser.InstructionContext inst : ctx.instruction()) {
-            boolean empty = currentBlock.getInstructions().isEmpty();
-            if (inst.forBlock() != null) {
+            if (inst.forBlock() != null || inst.whileBlock() != null || inst.doWhileBlock() != null
+             || inst.scope() != null    || inst.ifBlock() != null    || (inst.callSomething() != null &&
+                inst.callSomething().callFunction() != null &&
+                    Translator.program.getDefinedFunctions().containsKey( Function.getVirtualName(inst.callSomething()))) ) {
+
                 flowGraph.add(currentBlock);
-                Block next = new Block();
-                if( empty ) currentBlock.addInstruction( inst );
-                else next.addInstruction( inst );
-                currentBlock = next;
-            } else if (inst.whileBlock() != null) {
-                flowGraph.add(currentBlock);
-                Block next = new Block();
-                if( empty ) currentBlock.addInstruction( inst );
-                else next.addInstruction( inst );
-                currentBlock = next;
-            } else if (inst.doWhileBlock() != null) {
-                flowGraph.add(currentBlock);
-                Block next = new Block();
-                if( empty ) currentBlock.addInstruction( inst );
-                else next.addInstruction( inst );
-                currentBlock = next;
-            } else if (inst.scope() != null) {
-                flowGraph.add(currentBlock);
-                Block next = new Block();
-                if( empty ) currentBlock.addInstruction( inst );
-                else next.addInstruction( inst );
-                currentBlock = next;
-            } else if (inst.ifBlock() != null) {
-                flowGraph.add(currentBlock);
-                Block next = new Block();
-                if( empty ) currentBlock.addInstruction( inst );
-                else next.addInstruction( inst );
-                currentBlock = next;
-            } else if (inst.callSomething() != null && inst.callSomething().callFunction() != null) {
-                String name = Function.getVirtualName(inst.callSomething());
-                if (Translator.program.getDefinedFunctions().containsKey(name)) {
-                    flowGraph.add(currentBlock);
-                    Block next = new Block();
-                    if( empty ) currentBlock.addInstruction( inst );
-                    else next.addInstruction( inst );
-                    currentBlock = next;
-                } else {
-                    currentBlock.addInstruction(inst);
+                if( currentBlock.getInstructions().isEmpty() ) currentBlock.addInstruction( inst );
+                else {
+                    Block controlBlock = new Block();
+                    controlBlock.addInstruction( inst );
+                    flowGraph.add( controlBlock );
                 }
-            } else {
+                currentBlock = new Block();
+            }
+            else {
                 currentBlock.addInstruction(inst);
             }
         }
@@ -95,7 +67,14 @@ public class Function implements Comparable<Function> {
         }
     }
 
+    public void parallelizeBlocks() {
+        flowGraph.forEach( block -> getLiveDeadVariables(block) );
+        //Bind live and dead variables to parallelize
+    }
 
+    private void getLiveDeadVariables( Block block ) {
+
+    }
 
     @Override
     public int compareTo(Function o) {

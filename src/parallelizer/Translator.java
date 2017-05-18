@@ -81,6 +81,10 @@ public class Translator {
         return order;
     }
 
+    private void parallelize( LinkedList<Function> functionsOrder ) {
+        functionsOrder.forEach( f -> f.parallelizeBlocks() );
+    }
+
 
     public void translate (String inputFilename) throws IOException {
         ANTLRInputStream input;
@@ -98,6 +102,7 @@ public class Translator {
         parser.reset();
         buildCallGraph(parser);
         LinkedList<Function> functionsOrder = topoSort();
+        parallelize( functionsOrder );
 
         System.out.println("FUNCTIONS");
         program.getDefinedFunctions().forEach((xd, nothing) -> System.out.println(xd));
@@ -120,12 +125,13 @@ public class Translator {
             f.printFlowGraph();
 
         });
+
+
         
     }
 
     public static void main(String[] args) throws IOException {
 //        String source = "input-code/DanielK/782D.cpp";
-        //String source = "C:/Users/Osman/git/auto-parallelizer/input-code/input.cpp";
         String source = "input-code/input.cpp";
 
         Translator translator = new Translator();

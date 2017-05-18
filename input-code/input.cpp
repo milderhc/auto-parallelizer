@@ -17,6 +17,9 @@ int main () {
     x;
     a = 1;
     asdf = 234;
+    for( int i = 0; i < 10;i++) {
+        a = 10;
+    }
     asss = 123+123;
     built();
     builtin();
