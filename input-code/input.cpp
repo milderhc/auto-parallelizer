@@ -23,4 +23,5 @@ int main () {
     asss = 123+123;
     built();
     builtin();
+    int a, b = 10;
 }

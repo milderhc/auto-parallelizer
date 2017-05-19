@@ -36,6 +36,10 @@ public class Function implements Comparable<Function> {
         return ctx;
     }
 
+    public Set<String> getAliveVariables() { return aliveVariables; }
+
+    public Set<String> getDeadVariables() { return deadVariables; }
+
 
     public void buildFlowGraph () {
         Block currentBlock = new Block();
@@ -87,6 +91,7 @@ public class Function implements Comparable<Function> {
         while( it.hasNext() ) {
             it.next().getAliveDeadVariables( aliveVariables, deadVariables );
         }
+        //We have to remove the parameters that are not pointers because they were just copies
     }
 
     @Override

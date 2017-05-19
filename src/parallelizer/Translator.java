@@ -102,7 +102,6 @@ public class Translator {
         parser.reset();
         buildCallGraph(parser);
         LinkedList<Function> functionsOrder = topoSort();
-        parallelize( functionsOrder );
 
         System.out.println("FUNCTIONS");
         program.getDefinedFunctions().forEach((xd, nothing) -> System.out.println(xd));
@@ -123,10 +122,9 @@ public class Translator {
             System.out.println("FLOW GRAPH");
             f.buildFlowGraph();
             f.printFlowGraph();
-
         });
 
-
+        parallelize( functionsOrder );
         
     }
 

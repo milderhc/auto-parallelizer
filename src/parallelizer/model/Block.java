@@ -30,36 +30,28 @@ public class Block {
     }
 
     public void getAliveDeadVariables( Set<String> aliveVariables, Set<String> deadVariables ) {
-        Iterator<CPPParser.InstructionContext> it = instructions.descendingIterator();
-        while( it.hasNext() ) {
-            new VariableVisitor( it.next(), aliveVariables, deadVariables );
-            //updateAliveDeadVariables( it.next(), liveVariables, deadVariables );
+        if( isScope(instructions.poll()) ) {
+            //In this case the instructions inside the scope are going to be visited from top to bottom
+            //we have to invert this order.
         }
-        this.aliveVariables = new HashSet<>( aliveVariables );
-        this.deadVariables = new HashSet<>( deadVariables );
-    }
-
-    /*
-    private void updateAliveDeadVariables( CPPParser.InstructionContext inst, Set<String> liveVariables, Set<String> deadVariables ) {
-        if( isScope(inst) ) {
-
-        } else if( inst.declarationBlock() != null ) {
-
-        } else if( inst.assignmentBlock() != null ) {
-
-        } else if( inst.ifBlock() != null ) {
-
-        } else if( inst.callSomething() != null ) {
-
-        } else if( inst.expression() != null ) {
-
+        else {
+            Iterator<CPPParser.InstructionContext> it = instructions.descendingIterator();
+            while (it.hasNext()) {
+                new VariableVisitor(it.next(), aliveVariables, deadVariables);
+            }
+            this.aliveVariables = new HashSet<>( aliveVariables );
+            this.deadVariables = new HashSet<>( deadVariables );
         }
     }
 
     private boolean isScope(CPPParser.InstructionContext inst) {
         return inst.forBlock() != null || inst.whileBlock() != null || inst.doWhileBlock() != null
-                || inst.scope() != null    || inst.ifBlock() != null    ||
-                (inst.callSomething() != null && inst.callSomething().callFunction() != null &&
-                        Translator.program.getDefinedFunctions().containsKey( Function.getVirtualName(inst.callSomething())));
-    }*/
+                || inst.scope() != null    || inst.ifBlock() != null || isFunction( inst );
+    }
+
+    private boolean isFunction(CPPParser.InstructionContext inst) {
+        return (inst.callSomething() != null && inst.callSomething().callFunction() != null &&
+                Translator.program.getDefinedFunctions().containsKey( Function.getVirtualName(inst.callSomething())));
+    }
+
 }

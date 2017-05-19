@@ -2,6 +2,8 @@ package visitors;
 
 import gen.CPPBaseVisitor;
 import gen.CPPParser;
+import parallelizer.Translator;
+import parallelizer.model.Function;
 
 import java.util.Set;
 
@@ -11,7 +13,6 @@ import java.util.Set;
 public class VariableVisitor<T> extends CPPBaseVisitor<T> {
 
     Set<String> aliveVariables, deadVariables;
-    String lastId;
 
     public VariableVisitor(CPPParser.InstructionContext inst, Set<String> aliveVariables, Set<String> deadVariables) {
         this.aliveVariables = aliveVariables;
@@ -21,29 +22,47 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
 
     @Override
     public T visitProperDeclaration (CPPParser.ProperDeclarationContext ctx) {
-        ctx.id().forEach( id -> {
+        int index = 0;
+        for (CPPParser.IdContext id : ctx.id()) {
             deadVariables.remove( id.getText() );
             aliveVariables.remove( id.getText() );
-        });
+            //declarationType is missing
+            ++index;
+        }
         return visitChildren(ctx);
     }
 
     @Override
     public T visitAssignment (CPPParser.AssignmentContext ctx) {
-        lastId = ctx.callSomething().id().getText();
-        aliveVariables.remove( lastId );
-        deadVariables.add( lastId );
-        return visitChildren(ctx);
+
+        return null;
     }
 
     @Override
-    public T visitProperAssignment (CPPParser.ProperAssignmentContext ctx) {
-        int sz = ctx.assignmentOp().size();
-        for( int i = 0 ; i < sz; ++i ) {
-            // The difference between callSomething and expression
-            //                        a                 2+a
+    public T visitCallSomething (CPPParser.CallSomethingContext ctx) {
+        if( ctx.callFunction() != null ) {
+            String name = Function.getVirtualName(ctx);
+            if( Translator.program.getDefinedFunctions().containsKey(name) ) {
+                Function f = Translator.program.getDefinedFunctions().get(name);
+                f.getDeadVariables().forEach(var -> {
+                    aliveVariables.remove(var);
+                    deadVariables.add(var);
+                });
+                f.getAliveVariables().forEach(var -> {
+                    deadVariables.remove(var);
+                    aliveVariables.add(var);
+                });
+            }
+            if( ctx.callFunction().functionArguments() != null ) {
+                ctx.callFunction().functionArguments().expression().forEach( exp -> {
+                    //Update alive and dead variables for each expression
+                });
+            }
         }
         return null;
     }
+
+
+
 
 }
