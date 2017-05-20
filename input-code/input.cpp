@@ -11,7 +11,7 @@ int hola () {
 }
 
 int main () {
-    int a, b, c, d;
+    vector<int> v(5);
     a = 10;
     b = a + 15;
 
@@ -23,9 +23,9 @@ int main () {
     function(a);
     int h = 10;
 
-    if (c < d) {
-        h += c + d;
-    }
+    do {
+
+    } while (c < v[h]);
 
 
     function(a);

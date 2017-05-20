@@ -90,6 +90,8 @@ public class Block implements Comparable<Block> {
         } else if (inst.whileBlock() != null) {
             getAliveDeadVariablesControlStructureBody(inst.whileBlock().controlStructureBody());
             new VariableVisitor(inst.whileBlock().expression(), aliveVariables, deadVariables);
+        } else if (inst.switchBlock() != null) {
+            //TODO switch body
         } else {
             new VariableVisitor(inst.doWhileBlock().expression(), aliveVariables, deadVariables);
 
@@ -128,7 +130,7 @@ public class Block implements Comparable<Block> {
 
     private boolean isScope(CPPParser.InstructionContext inst) {
         return inst.forBlock() != null || inst.whileBlock() != null || inst.doWhileBlock() != null
-                || inst.scope() != null  || inst.ifBlock() != null;
+                || inst.scope() != null  || inst.ifBlock() != null || inst.switchBlock() != null;
     }
 
     @Override

@@ -61,30 +61,24 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
 
         for (char c : text.toCharArray()) {
             if (c == '(') {
-                ++cont2;
                 current = new StringBuilder();
-            }
-            else if (c == '[') {
-                ++cont1;
+            } else if (c == '[') {
+                if (current.length() > 0) {
+                    variables.add(current.toString());
+                }
                 current = new StringBuilder();
             }
 
-
-            if (cont1 > 0 || cont2 > 0) {
-                if (c == ')') --cont2;
-                else if (c == ']') --cont1;
+            if ("=!<>+-*/%&|^~([]) ".indexOf(c) == -1) {
+                if ("0123456789".indexOf(c) == -1 || current.length() > 0)
+                    current.append(c);
             } else {
-                if ("=!<>+-*/%&|^~ ".indexOf(c) == -1) {
-                    if ("0123456789".indexOf(c) == -1 || current.length() > 0)
-                        current.append(c);
-                } else {
-                    if (current.length() > 0) {
-                        String id = current.toString();
-                        if (!id.equals("or") && !id.equals("and") && !id.equals("xor")) {
-                            variables.add(id);
-                        }
-                        current = new StringBuilder();
+                if (current.length() > 0) {
+                    String id = current.toString();
+                    if (!id.equals("or") && !id.equals("and") && !id.equals("xor")) {
+                        variables.add(id);
                     }
+                    current = new StringBuilder();
                 }
             }
         }
@@ -127,6 +121,7 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
     public T visitAccessBrackets (CPPParser.AccessBracketsContext access) {
         access.expression().forEach(expr -> {
             analyze(getText(expr)).forEach(rightId -> {
+                System.out.println("HEREEEEE " + getText(expr));
                 deadVariables.remove(rightId);
                 aliveVariables.add(rightId);
             });
@@ -179,6 +174,8 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
                 aliveVariables.add(rightId);
             });
         }
+
+        System.out.println("CALL SOMETHING " + getText(ctx));
 
         return visitChildren(ctx);
     }
