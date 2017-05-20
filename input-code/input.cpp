@@ -18,6 +18,13 @@ int main () {
     d = 6;
 
     function(a);
+    int h = 10;
+
+    for (int i = 0; i < h; i = i + 1) {
+        d = d + 1;
+    }
+
+    function(a);
     function(a, b + 10);
 
     int e = 18;

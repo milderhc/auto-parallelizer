@@ -18,10 +18,32 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
 
     Set<String> aliveVariables, deadVariables;
 
-    public VariableVisitor(CPPParser.InstructionContext inst, Set<String> aliveVariables, Set<String> deadVariables) {
+    public VariableVisitor(Set<String> aliveVariables, Set<String> deadVariables) {
         this.aliveVariables = aliveVariables;
         this.deadVariables = deadVariables;
-        visitChildren( inst );
+    }
+
+    public VariableVisitor(CPPParser.InstructionContext inst, Set<String> aliveVariables, Set<String> deadVariables) {
+        this(aliveVariables, deadVariables);
+        visitChildren(inst);
+    }
+
+    public VariableVisitor(CPPParser.ForExpressionContext inst, Set<String> aliveVariables, Set<String> deadVariables) {
+        this(aliveVariables, deadVariables);
+        visitChildren(inst);
+    }
+
+    public VariableVisitor(CPPParser.ExpressionContext inst, Set<String> aliveVariables, Set<String> deadVariables) {
+        this(aliveVariables, deadVariables);
+        analyze(getText(inst)).forEach(rightId -> {
+            deadVariables.remove(rightId);
+            aliveVariables.add(rightId);
+        });
+    }
+
+    public VariableVisitor(CPPParser.ForEachContext inst, Set<String> aliveVariables, Set<String> deadVariables) {
+        this(aliveVariables, deadVariables);
+        visitChildren(inst);
     }
 
     private String getText (ParserRuleContext ctx) {
@@ -88,13 +110,13 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
 
     @Override
     public T visitProperAssignment (CPPParser.ProperAssignmentContext ctx) {
-        System.out.println("Expression ->>>> " + getText(ctx.expression()));
-        System.out.println("ids");
+//        System.out.println("Expression ->>>> " + getText(ctx.expression()));
+//        System.out.println("ids");
         analyze(getText(ctx.expression())).forEach(rightId -> {
             deadVariables.remove(rightId);
             aliveVariables.add(rightId);
 
-            System.out.print(rightId + " ");
+//            System.out.print(rightId + " ");
         });
         System.out.println();
 

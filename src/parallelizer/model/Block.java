@@ -25,13 +25,89 @@ public class Block implements Comparable<Block> {
         return instructions;
     }
 
-    public void getAliveDeadVariables() {
-        this.aliveVariables = new HashSet<>();
-        this.deadVariables = new HashSet<>();
-//        System.out.println();
+//    int a;
+//    int c;
+//    c = 10;
+//    for (...) {
+//        int x = 2;
+//        for (int ...) {
+//            a += x;
+//            j = h;
+//        }
+//        e = 10 + c;
+//    }
+//
+//    int a =0 ;
+//        for ()
+//                for ()
+//    a += 2;
+
+    public void getAliveDeadVariablesControlStructureBody (CPPParser.ControlStructureBodyContext body) {
+        if (body.scope() != null)
+            getAliveDeadVariables(new LinkedList<>(body.scope().instruction()));
+        else if (body.instruction() != null) {
+            LinkedList temp = new LinkedList<CPPParser.InstructionContext>();
+            temp.add(body.instruction());
+            getAliveDeadVariables(temp);
+        }
+    }
+    
+    public void getAliveDeadVariablesFor (CPPParser.ForBlockContext inst) {
+        if (inst.classicFor() != null) {
+            if (inst.classicFor().forExpression().size() == 1) {
+                if (inst.classicFor().getText().indexOf(';') == 0)
+                    new VariableVisitor(inst.classicFor().forExpression(0), aliveVariables, deadVariables);
+            } else if (inst.classicFor().forExpression().size() == 2) {
+                new VariableVisitor(inst.classicFor().forExpression(1), aliveVariables, deadVariables);
+            }
+        }
+
+        getAliveDeadVariablesControlStructureBody(inst.controlStructureBody());
+
+        if (inst.classicFor() != null) {
+            new VariableVisitor(inst.classicFor().expression(), aliveVariables, deadVariables);
+            if (inst.classicFor().forExpression().size() == 1) {
+                if (inst.classicFor().getText().indexOf(';') != 0)
+                    new VariableVisitor(inst.classicFor().forExpression(0), aliveVariables, deadVariables);
+            } else if (inst.classicFor().forExpression().size() == 2) {
+                new VariableVisitor(inst.classicFor().forExpression(0), aliveVariables, deadVariables);
+            }
+        } else {
+            new VariableVisitor(inst.forEach(), aliveVariables, deadVariables);
+        }
+    }
+
+    public void getAliveDeadVariablesControlStructure (CPPParser.InstructionContext inst) {
+        if (inst.forBlock() != null) {
+            getAliveDeadVariablesFor(inst.forBlock());
+        } else if (inst.scope() != null) {
+            getAliveDeadVariables(new LinkedList<>(inst.scope().instruction()));
+        } else if (inst.ifBlock() != null) {
+            inst.ifBlock().controlStructureBody().forEach(
+                    body -> getAliveDeadVariablesControlStructureBody(body));
+            new VariableVisitor(inst.ifBlock().expression(), aliveVariables, deadVariables);
+        } else if (inst.whileBlock() != null) {
+            getAliveDeadVariablesControlStructureBody(inst.whileBlock().controlStructureBody());
+            new VariableVisitor(inst.whileBlock().expression(), aliveVariables, deadVariables);
+        } else {
+            new VariableVisitor(inst.doWhileBlock().expression(), aliveVariables, deadVariables);
+
+            CPPParser.DoWhileBodyContext body = inst.doWhileBlock().doWhileBody();
+            if (body.scope() != null)
+                getAliveDeadVariables(new LinkedList<>(body.scope().instruction()));
+            else if (body.instruction() != null) {
+                LinkedList temp = new LinkedList<CPPParser.InstructionContext>();
+                temp.add(body.instruction());
+                getAliveDeadVariables(temp);
+            }
+        }
+    }
+
+    public void getAliveDeadVariables(LinkedList<CPPParser.InstructionContext> instructions) {
         if( isScope(instructions.peek()) ) {
             //In this case the instructions inside the scope are going to be visited from top to bottom
             //we have to invert this order.
+            getAliveDeadVariablesControlStructure(instructions.peek());
         }
         else {
             Iterator<CPPParser.InstructionContext> it = instructions.descendingIterator();
@@ -39,6 +115,12 @@ public class Block implements Comparable<Block> {
                 new VariableVisitor(it.next(), aliveVariables, deadVariables);
             }
         }
+    }
+
+    public void getAliveDeadVariables() {
+        this.aliveVariables = new HashSet<>();
+        this.deadVariables = new HashSet<>();
+        getAliveDeadVariables(this.instructions);
     }
 
     private boolean isScope(CPPParser.InstructionContext inst) {
