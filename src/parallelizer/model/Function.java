@@ -11,7 +11,7 @@ import java.util.*;
 public class Function implements Comparable<Function> {
 
     private LinkedList<Block> flowGraph;
-    private Map<Block, List<Block>> dependencyGraph;
+    private Map<Block, Set<Block>> dependencyGraph;
 
     private String id;
     private CPPParser.FunctionBodyContext ctx;
@@ -146,22 +146,20 @@ public class Function implements Comparable<Function> {
         if (flowGraph.isEmpty())
             return;
 
-        flowGraph.forEach(block -> dependencyGraph.put(block, new LinkedList<>()));
+        ArrayList<Block> blocks = new ArrayList<>(flowGraph.size());
 
-        ListIterator<Block> it = flowGraph.listIterator(flowGraph.size());
-        while (it.hasPrevious()) {
-            if (it.previousIndex() == -1)
-                break;
-            ListIterator<Block> previous = flowGraph.listIterator(it.previousIndex());
-            Block current = it.previous();
+        for (Block block : flowGraph) {
+            dependencyGraph.put(block, new TreeSet<>());
+            blocks.add(block);
+        }
 
-            current.getAliveVariables();
-            while (previous.hasPrevious()) {
-                Block next = previous.previous();
-                if (checkDependency(current.getAliveVariables(), next.getDeadVariables())) {
-                    dependencyGraph.get(next).add(current);
-                }
-            }
+        for (int i = flowGraph.size() - 1; i >= 0; --i) {
+            for (String alive : flowGraph.get(i).getAliveVariables())
+                for (int j = i - 1; j >= 0; --j)
+                    if (flowGraph.get(j).getDeadVariables().contains(alive)) {
+                        dependencyGraph.get(blocks.get(j)).add(blocks.get(i));
+                        break;
+                    }
         }
     }
 

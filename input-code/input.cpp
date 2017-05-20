@@ -23,9 +23,9 @@ int main () {
     function(a);
     int h = 10;
 
-    do {
-        h += a;
-    } while (c < d);
+    if (c < d) {
+        h += c + d;
+    }
 
 
     function(a);
