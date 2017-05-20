@@ -82,8 +82,7 @@ declarationBlock        : 'const'? 'static'? declaration ';' ;
 declaration             : datatype properDeclaration ;
 properDeclaration       : id declarationType? (',' id declarationType?)* ;
 declarationType         : properAssignment
-                        | '(' expression (',' expression)* ')'
-                        | ('[' expression? ']')+
+                        | accessBrackets+
                         ;
 
 assignmentBlock         : assignment (',' assignment)* ';' ;
@@ -152,7 +151,7 @@ value                   : INT | LONG | LONGLONG | CHAR | BOOL | DOUBLE | STRING 
 
 accessOp                : '.' | '->' ;
 accessBrackets          : '[' expression ']'
-                        | '(' expressionList ')'
+                        | '(' expression (',' expression)* ')'
                         ;
 
 /* Right angle bracket (C++11) - Solution '>>' is not token, only '>'

@@ -1,12 +1,9 @@
     package parallelizer.model;
 
-import gen.CPPParser;
+    import gen.CPPParser;
 import parallelizer.Translator;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
     /**
  * Created by milderhc on 16/05/17.
@@ -14,6 +11,8 @@ import java.util.Set;
 public class Function implements Comparable<Function> {
 
     private LinkedList<Block> flowGraph;
+    private Map<Block, List<Block>> dependencyGraph;
+
     private String id;
     private CPPParser.FunctionBodyContext ctx;
     private Set<String> aliveVariables, deadVariables; //in case a Block is just a function call
@@ -22,10 +21,11 @@ public class Function implements Comparable<Function> {
         this.id = id;
         this.ctx = ctx;
         this.flowGraph = new LinkedList<>();
+        this.dependencyGraph = new TreeMap<>();
     }
 
     public Function(String id) {
-        this.id = id;
+        this(id, null);
     }
 
     public String getId() {
@@ -42,17 +42,21 @@ public class Function implements Comparable<Function> {
 
 
     public void buildFlowGraph () {
-        Block currentBlock = new Block();
+        if (ctx == null)
+            return;
+        int index = 0;
+
+        Block currentBlock = new Block(index++);
         for (CPPParser.InstructionContext inst : ctx.instruction()) {
             if ( isScope(inst) ) {
                 flowGraph.add(currentBlock);
                 if( currentBlock.getInstructions().isEmpty() ) currentBlock.addInstruction( inst );
                 else {
-                    Block controlBlock = new Block();
+                    Block controlBlock = new Block(index++);
                     controlBlock.addInstruction( inst );
                     flowGraph.add( controlBlock );
                 }
-                currentBlock = new Block();
+                currentBlock = new Block(index++);
             }
             else {
                 currentBlock.addInstruction(inst);
@@ -71,14 +75,20 @@ public class Function implements Comparable<Function> {
     }
 
     public void printFlowGraph() {
-        int index = 0;
-        for( Block block : flowGraph ) {
-            System.out.println( "Block#" + (index++) );
-            block.print();
-        }
+        flowGraph.forEach(block -> System.out.println(block));
     }
 
-    public void parallelizeBlocks() {
+    public void printDependencyGraph () {
+        dependencyGraph.forEach((block, neighbors) -> {
+            System.out.print(block.getId() + " -> ");
+            neighbors.forEach(neigh -> System.out.print(neigh.getId() + " "));
+            System.out.println();
+        });
+    }
+
+    public void findDependencies() {
+        if (ctx == null)
+            return;
         getAliveDeadVariables();
         //Make the dependencies between blocks with the information of live and dead variables
         //Parallelize the blocks that don't have dependencies
@@ -89,9 +99,8 @@ public class Function implements Comparable<Function> {
         deadVariables = new HashSet<>();
         Iterator<Block> it = flowGraph.descendingIterator();
         while( it.hasNext() ) {
-            it.next().getAliveDeadVariables( aliveVariables, deadVariables );
+            it.next().getAliveDeadVariables();
         }
-        //We have to remove the parameters that are not pointers because they were just copies
     }
 
     @Override
@@ -123,5 +132,36 @@ public class Function implements Comparable<Function> {
         }
 
         return name.toString();
+    }
+
+    public boolean checkDependency (Set<String> alive, Set<String> dead) {
+        for (String a : alive) {
+            if (dead.contains(a))
+                return true;
+        }
+        return false;
+    }
+
+    public void buildDependencyGraph() {
+        if (flowGraph.isEmpty())
+            return;
+
+        flowGraph.forEach(block -> dependencyGraph.put(block, new LinkedList<>()));
+
+        ListIterator<Block> it = flowGraph.listIterator(flowGraph.size());
+        while (it.hasPrevious()) {
+            if (it.previousIndex() == -1)
+                break;
+            ListIterator<Block> previous = flowGraph.listIterator(it.previousIndex());
+            Block current = it.previous();
+
+            current.getAliveVariables();
+            while (previous.hasPrevious()) {
+                Block next = previous.previous();
+                if (checkDependency(current.getAliveVariables(), next.getDeadVariables())) {
+                    dependencyGraph.get(next).add(current);
+                }
+            }
+        }
     }
 }

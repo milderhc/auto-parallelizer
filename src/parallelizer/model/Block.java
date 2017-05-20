@@ -1,7 +1,6 @@
 package parallelizer.model;
 
 import gen.CPPParser;
-import parallelizer.Translator;
 import visitors.VariableVisitor;
 
 import java.util.*;
@@ -9,12 +8,13 @@ import java.util.*;
 /**
  * Created by milderhc on 16/05/17.
  */
-public class Block {
+public class Block implements Comparable<Block> {
     private LinkedList<CPPParser.InstructionContext> instructions;
     private Set<String> aliveVariables, deadVariables;
+    private int id;
 
-    public Block () {
-        instructions = new LinkedList<>();
+    public Block (int id) {
+        instructions = new LinkedList<>(); this.id = id;
     }
 
     public void addInstruction (CPPParser.InstructionContext inst) {
@@ -25,12 +25,11 @@ public class Block {
         return instructions;
     }
 
-    public void print() {
-        instructions.forEach( inst -> System.out.println( inst.getText() ) );
-    }
-
-    public void getAliveDeadVariables( Set<String> aliveVariables, Set<String> deadVariables ) {
-        if( isScope(instructions.poll()) ) {
+    public void getAliveDeadVariables() {
+        this.aliveVariables = new HashSet<>();
+        this.deadVariables = new HashSet<>();
+//        System.out.println();
+        if( isScope(instructions.peek()) ) {
             //In this case the instructions inside the scope are going to be visited from top to bottom
             //we have to invert this order.
         }
@@ -39,19 +38,41 @@ public class Block {
             while (it.hasNext()) {
                 new VariableVisitor(it.next(), aliveVariables, deadVariables);
             }
-            this.aliveVariables = new HashSet<>( aliveVariables );
-            this.deadVariables = new HashSet<>( deadVariables );
         }
     }
 
     private boolean isScope(CPPParser.InstructionContext inst) {
         return inst.forBlock() != null || inst.whileBlock() != null || inst.doWhileBlock() != null
-                || inst.scope() != null    || inst.ifBlock() != null || isFunction( inst );
+                || inst.scope() != null  || inst.ifBlock() != null;
     }
 
-    private boolean isFunction(CPPParser.InstructionContext inst) {
-        return (inst.callSomething() != null && inst.callSomething().callFunction() != null &&
-                Translator.program.getDefinedFunctions().containsKey( Function.getVirtualName(inst.callSomething())));
+    @Override
+    public String toString () {
+        StringBuilder builder = new StringBuilder("Block #" + id + "\nInstructions\n");
+        instructions.forEach( inst -> builder.append(inst.getText() + "\n") );
+        builder.append("Alive variables [ ");
+        aliveVariables.forEach(alive -> builder.append(alive + " "));
+        builder.append("]\nDead variables [ ");
+        deadVariables.forEach(dead -> builder.append(dead + " "));
+        builder.append("]");
+        return builder.toString();
     }
 
+    public Set<String> getAliveVariables() {
+        return aliveVariables;
+    }
+
+    public Set<String> getDeadVariables() {
+        return deadVariables;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+
+    @Override
+    public int compareTo(Block o) {
+        return id - o.getId();
+    }
 }

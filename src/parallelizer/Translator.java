@@ -81,9 +81,6 @@ public class Translator {
         return order;
     }
 
-    private void parallelize( LinkedList<Function> functionsOrder ) {
-        functionsOrder.forEach( f -> f.parallelizeBlocks() );
-    }
 
 
     public void translate (String inputFilename) throws IOException {
@@ -118,14 +115,35 @@ public class Translator {
 
         System.out.println();
         functionsOrder.forEach( f -> {
+            f.buildFlowGraph();
+        });
+
+        System.out.println();
+        findDependencies(functionsOrder);
+
+        functionsOrder.forEach( f -> {
             System.out.println("FUNCTION " + f.getId() );
             System.out.println("FLOW GRAPH");
-            f.buildFlowGraph();
             f.printFlowGraph();
         });
 
-        parallelize( functionsOrder );
-        
+
+        buildDependencyGraph(functionsOrder);
+
+        System.out.println("\nDEPENDENCY GRAPHS");
+        functionsOrder.forEach( f -> {
+            System.out.println("FUNCTION " + f.getId());
+            System.out.println("DEPENDENCY GRAPH");
+            f.printDependencyGraph();
+        });
+    }
+
+    private void findDependencies(LinkedList<Function> functionsOrder ) {
+        functionsOrder.forEach( f -> f.findDependencies() );
+    }
+
+    private void buildDependencyGraph(LinkedList<Function> functionsOrder) {
+        functionsOrder.forEach( f -> f.buildDependencyGraph() );
     }
 
     public static void main(String[] args) throws IOException {

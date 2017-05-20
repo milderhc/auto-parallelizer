@@ -11,17 +11,17 @@ int hola () {
 }
 
 int main () {
+    int a, b, c, d;
+    a = 10;
+    b = a + 15;
+    c = 50;
+    d = 6;
+
     function(a);
-    function(a, b);
-    hola();
-    x;
-    a = 1;
-    asdf = 234;
-    for( int i = 0; i < 10;i++) {
-        a = 10;
-    }
-    asss = 123+123;
-    built();
-    builtin();
-    int a, b = 10;
+    function(a, b + 10);
+
+    int e = 18;
+    a = 32;
+    b = e + 15;
+
 }
