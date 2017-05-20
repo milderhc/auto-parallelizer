@@ -141,6 +141,10 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
             String leftId = ctx.callSomething().id().getText();
             aliveVariables.remove(leftId);
             deadVariables.add(leftId);
+        } else {
+            String leftId = ctx.callSomething().id().getText();
+            deadVariables.remove(leftId);
+            aliveVariables.add(leftId);
         }
 
         return visitChildren(ctx);

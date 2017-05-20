@@ -65,7 +65,8 @@ public class Block implements Comparable<Block> {
         getAliveDeadVariablesControlStructureBody(inst.controlStructureBody());
 
         if (inst.classicFor() != null) {
-            new VariableVisitor(inst.classicFor().expression(), aliveVariables, deadVariables);
+            if (inst.classicFor().expression() != null)
+                new VariableVisitor(inst.classicFor().expression(), aliveVariables, deadVariables);
             if (inst.classicFor().forExpression().size() == 1) {
                 if (inst.classicFor().getText().indexOf(';') != 0)
                     new VariableVisitor(inst.classicFor().forExpression(0), aliveVariables, deadVariables);
@@ -104,6 +105,8 @@ public class Block implements Comparable<Block> {
     }
 
     public void getAliveDeadVariables(LinkedList<CPPParser.InstructionContext> instructions) {
+        if (instructions.isEmpty())
+            return;
         if( isScope(instructions.peek()) ) {
             //In this case the instructions inside the scope are going to be visited from top to bottom
             //we have to invert this order.

@@ -23,10 +23,9 @@ int main () {
     function(a);
     int h = 10;
 
-    while (c < d) {
-        ++c;
-        a = 5;
-    }
+    do {
+        h += a;
+    } while (c < d);
 
 
     function(a);
