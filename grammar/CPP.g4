@@ -151,7 +151,7 @@ value                   : INT | LONG | LONGLONG | CHAR | BOOL | DOUBLE | STRING 
 
 accessOp                : '.' | '->' ;
 accessBrackets          : '[' expression ']'
-                        | '(' e ')'
+                        | '(' expressionList ')'
                         ;
 
 /* Right angle bracket (C++11) - Solution '>>' is not token, only '>'
