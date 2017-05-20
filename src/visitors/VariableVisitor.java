@@ -175,8 +175,6 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
             });
         }
 
-        System.out.println("CALL SOMETHING " + getText(ctx));
-
         return visitChildren(ctx);
     }
 

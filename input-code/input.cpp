@@ -23,9 +23,16 @@ int main () {
     function(a);
     int h = 10;
 
-    do {
+    for (int i = 0; i < c; ++i) {
+        int xd = d;
 
-    } while (c < v[h]);
+        while (h < c) {
+            a += h;
+        }
+
+        d += i;
+
+    }
 
 
     function(a);

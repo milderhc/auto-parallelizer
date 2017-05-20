@@ -109,16 +109,13 @@ public class Block implements Comparable<Block> {
     public void getAliveDeadVariables(LinkedList<CPPParser.InstructionContext> instructions) {
         if (instructions.isEmpty())
             return;
-        if( isScope(instructions.peek()) ) {
-            //In this case the instructions inside the scope are going to be visited from top to bottom
-            //we have to invert this order.
-            getAliveDeadVariablesControlStructure(instructions.peek());
-        }
-        else {
-            Iterator<CPPParser.InstructionContext> it = instructions.descendingIterator();
-            while (it.hasNext()) {
-                new VariableVisitor(it.next(), aliveVariables, deadVariables);
-            }
+        Iterator<CPPParser.InstructionContext> it = instructions.descendingIterator();
+        while (it.hasNext()) {
+            CPPParser.InstructionContext next = it.next();
+            if (isScope(next))
+                getAliveDeadVariablesControlStructure(next);
+            else
+                new VariableVisitor(next, aliveVariables, deadVariables);
         }
     }
 
