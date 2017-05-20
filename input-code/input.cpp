@@ -14,15 +14,20 @@ int main () {
     int a, b, c, d;
     a = 10;
     b = a + 15;
+
+    function(a);
+
     c = 50;
     d = 6;
 
     function(a);
     int h = 10;
 
-    for (int i = 0; i < h; i = i + 1) {
-        d = d + 1;
+    while (c < d) {
+        ++c;
+        a = 5;
     }
+
 
     function(a);
     function(a, b + 10);

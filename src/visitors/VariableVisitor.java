@@ -169,8 +169,25 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
                     });
                 });
             }
+        } else if (ctx.increaseOp() != null) {
+            analyze(getText(ctx)).forEach(rightId -> {
+                deadVariables.remove(rightId);
+                aliveVariables.add(rightId);
+            });
         }
 
         return visitChildren(ctx);
+    }
+
+    @Override
+    public T visitExpression (CPPParser.ExpressionContext ctx) {
+        if (ctx.unOp2() != null && ctx.unOp2().increaseOp() != null) {
+            analyze(getText(ctx)).forEach(rightId -> {
+                deadVariables.remove(rightId);
+                aliveVariables.add(rightId);
+            });
+        }
+
+        return null;
     }
 }
