@@ -107,11 +107,11 @@ public interface CPPVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionRem(CPPParser.FunctionRemContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link CPPParser#functionBody}.
+	 * Visit a parse tree produced by {@link CPPParser#scope}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFunctionBody(CPPParser.FunctionBodyContext ctx);
+	T visitScope(CPPParser.ScopeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link CPPParser#parameters}.
 	 * @param ctx the parse tree
@@ -190,12 +190,6 @@ public interface CPPVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitReturnBlock(CPPParser.ReturnBlockContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link CPPParser#scope}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitScope(CPPParser.ScopeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link CPPParser#declarationBlock}.
 	 * @param ctx the parse tree

@@ -17,12 +17,14 @@ public class Function implements Comparable<Function> {
     private Map<Block, Set<Block>> dependencyGraph;
     private LinkedList<Pair<Block, Integer>> blocksOrder;
 
+    private Block returnBlock;
+
     private String id;
-    private CPPParser.FunctionBodyContext bodyCtx;
+    private CPPParser.ScopeContext bodyCtx;
     private ParserRuleContext functionCtx;
     private Set<String> aliveVariables, deadVariables; //in case a Block is just a function call
 
-    public Function(String id, CPPParser.FunctionBodyContext bodyCtx, ParserRuleContext functionCtx) {
+    public Function(String id, CPPParser.ScopeContext bodyCtx, ParserRuleContext functionCtx) {
         this.id = id;
         this.bodyCtx = bodyCtx;
         this.functionCtx = functionCtx;
@@ -46,19 +48,26 @@ public class Function implements Comparable<Function> {
     public void buildFlowGraph () {
         if (bodyCtx == null)
             return;
+
+        returnBlock = null;
         int index = 0;
 
         Block currentBlock = new Block(index++);
         for (CPPParser.InstructionContext inst : bodyCtx.instruction()) {
             if ( isScope(inst) ) {
-                flowGraph.add(currentBlock);
-                if( currentBlock.getInstructions().isEmpty() ) currentBlock.addInstruction( inst );
-                else {
-                    Block controlBlock = new Block(index++);
-                    controlBlock.addInstruction( inst );
-                    flowGraph.add( controlBlock );
+                if (inst.returnBlock() != null) {
+                    returnBlock = new Block(index++);
+                    returnBlock.addInstruction(inst);
+                } else {
+                    flowGraph.add(currentBlock);
+                    if (currentBlock.getInstructions().isEmpty()) currentBlock.addInstruction(inst);
+                    else {
+                        Block controlBlock = new Block(index++);
+                        controlBlock.addInstruction(inst);
+                        flowGraph.add(controlBlock);
+                    }
+                    currentBlock = new Block(index++);
                 }
-                currentBlock = new Block(index++);
             }
             else {
                 currentBlock.addInstruction(inst);
@@ -71,7 +80,7 @@ public class Function implements Comparable<Function> {
 
     private boolean isScope(CPPParser.InstructionContext inst) {
         return inst.forBlock() != null || inst.whileBlock() != null || inst.doWhileBlock() != null
-                || inst.scope() != null    || inst.ifBlock() != null    ||
+                || inst.scope() != null || inst.ifBlock() != null || inst.returnBlock() != null ||
                 (inst.callSomething() != null && inst.callSomething().callFunction() != null &&
                 Translator.program.getDefinedFunctions().containsKey( Function.getVirtualName(inst.callSomething())));
     }
@@ -229,7 +238,7 @@ public class Function implements Comparable<Function> {
 
         sections.forEach(section -> {
             if (section.size() > 1) {
-                parellized.append("\t#pragma omp sections\n\t{\n");
+                parellized.append("\t#pragma omp parallel sections\n\t{\n");
                 section.forEach(block -> {
                     parellized.append("\t\t#pragma omp section\n\t\t{\n");
                     parellized.append(block.getText(3));
@@ -241,6 +250,8 @@ public class Function implements Comparable<Function> {
             }
         });
 
+        if (returnBlock != null)
+            parellized.append(returnBlock.getText(1));
         parellized.append("}\n");
 
         return parellized.toString();

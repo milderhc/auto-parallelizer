@@ -122,8 +122,6 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
             });
             deadVariables.add("cout");
         }
-
-
     }
 
     @Override

@@ -18,10 +18,13 @@ public class Program {
     private Function main;
 
     private StringBuilder translatedCode;
+    private StringBuilder firstTranslatedCode;
+
     public static final String OUTPUT_CODE_FOLDER = "output-code";
 
     public Program () {
         translatedCode = new StringBuilder();
+        firstTranslatedCode = new StringBuilder();
         definedFunctions = new HashMap<>();
         callGraph = new TreeMap<>();
     }

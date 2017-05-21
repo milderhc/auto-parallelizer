@@ -15,7 +15,7 @@ global                  : typedef
                         | DIRECTIVE
                         ;
 
-main                    : mainSign functionBody ;
+main                    : mainSign scope ;
 mainSign                : 'int'? 'main' '(' parameters? ')' ;
 
 namespace               : 'namespace' ID '{' global* '}' ;
@@ -36,10 +36,10 @@ datatypeDefinition      : nestedNamespace ('<' datatype (',' datatype)* '>')?
 template                : 'template' '<' ('class' | 'typename') ID '>' ;
 function                : functionSign functionRem ;
 functionSign            : template? 'inline'? (datatype | 'void') id '(' parameters? ')' 'const'? ;
-functionRem             : functionBody
+functionRem             : scope
                         | ';'
                         ;
-functionBody            : '{' instruction* '}' ;
+scope            : '{' instruction* '}' ;
 
 parameters              : datatype properDeclaration? (',' datatype properDeclaration?)* ;
 
@@ -79,8 +79,6 @@ instruction             : declarationBlock
                         ;
 
 returnBlock             : 'return' expression? ';' ;
-
-scope                   : '{' instruction* '}' ;
 
 declarationBlock        : 'const'? 'static'? declaration ';' ;
 declaration             : datatype properDeclaration ;

@@ -13,18 +13,17 @@ const int INF = INT_MAX;
 double v[MAX], x[MAX];
 int n;
 
-double get_t(double p) {
-    double ret = 0;
-    for(int i = 0; i < n; i++) {
-        if(p >= x[i]) {
-            ret = max(ret, (p-x[i])/v[i]);
-        } else {
-            ret = max(ret, (x[i]-p)/v[i]);
-        }
-    }
-    return ret;
+int function (int a) {
+    return 10;
 }
 
+double get_t(double p) {
+	int a = 10;
+	function(a);
+	int b = 20;
+	function(b);
+	return ret;
+}
 int main( ) {
      ios_base::sync_with_stdio(0);
 //     cin.tie(0);

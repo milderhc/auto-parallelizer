@@ -8,25 +8,33 @@ const double EPS = 1e-6;
 const int INF = INT_MAX;
 double v[MAX], x[MAX];
 int n;
+int function (int a) {
+	return 10;
+}
 double get_t(double p) {
-	#pragma omp sections
+	#pragma omp parallel sections
 	{
 		#pragma omp section
 		{
-			return ret;
+			int b = 20;
 		}
 		#pragma omp section
 		{
-			double ret = 0;
+			int a = 10;
 		}
 	}
-	for(int i = 0; i < n; i++) {
-        if(p >= x[i]) {
-            ret = max(ret, (p-x[i])/v[i]);
-        } else {
-            ret = max(ret, (x[i]-p)/v[i]);
-        }
-    }
+	#pragma omp parallel sections
+	{
+		#pragma omp section
+		{
+			function(b);
+		}
+		#pragma omp section
+		{
+			function(a);
+		}
+	}
+	return ret;
 }
 int main( ) {
 	ios_base::sync_with_stdio(0);
