@@ -2,14 +2,13 @@ package parallelizer;
 
 import gen.CPPLexer;
 import gen.CPPParser;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import parallelizer.model.Function;
 import visitors.CallGraphVisitor;
 import visitors.FunctionVisitor;
+import visitors.GlobalVisitor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,12 +25,14 @@ public class Translator {
     public static Program program;
 
     private void visitFunctions (CPPParser parser) {
+        parser.reset();
         ParseTree tree = parser.cpp();
         FunctionVisitor visitor = new FunctionVisitor(program);
         visitor.visit(tree);
     }
 
     private void buildCallGraph (CPPParser parser) {
+        parser.reset();
         ParseTree tree = parser.cpp();
         CallGraphVisitor visitor = new CallGraphVisitor(program);
         visitor.visit(tree);
@@ -74,6 +75,22 @@ public class Translator {
         functionsOrder.forEach( f -> f.findIslands() );
     }
 
+    private void addGlobalStatements (CPPParser parser) {
+        parser.reset();
+        TokenStream inputStream = parser.getInputStream();
+        for (int i = 0; i < inputStream.size(); ++i) {
+            Token token = inputStream.get(i);
+            if (token.getChannel() == 1) {
+                program.add(token.getText() + "\n");
+            }
+        }
+
+        parser.reset();
+        ParseTree tree = parser.cpp();
+        GlobalVisitor visitor = new GlobalVisitor(program);
+        visitor.visit(tree);
+    }
+
     private void parallelize(LinkedList<Function> functionsOrder) {
         functionsOrder.forEach( f -> program.add(f.parallelize()) );
     }
@@ -91,7 +108,6 @@ public class Translator {
         program = new Program();
 
         visitFunctions(parser);
-        parser.reset();
         buildCallGraph(parser);
         LinkedList<Function> functionsOrder = topoSort();
 
@@ -144,6 +160,8 @@ public class Translator {
             System.out.println();
         });
 
+        addGlobalStatements(parser);
+
         parallelize(functionsOrder);
 
         program.exportCode("output.cpp");
@@ -153,7 +171,7 @@ public class Translator {
         int a = ctx.start.getStartIndex();
         int b = ctx.stop.getStopIndex();
         Interval interval = new Interval(a,b);
-        return ctx.start.getInputStream().getText(interval);
+        return ctx.start.getInputStream().getText(interval) + "\n";
     }
 
     public static void main(String[] args) throws IOException {

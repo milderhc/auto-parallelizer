@@ -1,3 +1,8 @@
+#include <bits/stdc++.h>
+#define max(a, b) (a) < (b) ? (a) : (b)
+#define check true
+typedef long long ll;
+const int MAX = 1004;
 int function (int a, int b) {
 }
 int function (int a) {
@@ -8,21 +13,18 @@ int main () {
 	{
 		#pragma omp section
 		{
-		int h = 10;
-
+			int h = 10;
 		}
 		#pragma omp section
 		{
-		c = 50;
-		d = 6;
-
+			c = 50;
+			d = 6;
 		}
 		#pragma omp section
 		{
-		vector<int> v(5);
-		a = 10;
-		b = a + 15;
-
+			vector<int> v(5);
+			a = 10;
+			b = a + 15;
 		}
 	}
 	function(a, b + 10);

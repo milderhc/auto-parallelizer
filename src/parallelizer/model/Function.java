@@ -240,8 +240,8 @@ public class Function implements Comparable<Function> {
                 parellized.append("\t#pragma omp sections\n\t{\n");
                 section.forEach(block -> {
                     parellized.append("\t\t#pragma omp section\n\t\t{\n");
-                    parellized.append(block.getText(2));
-                    parellized.append("\n\t\t}\n");
+                    parellized.append(block.getText(3));
+                    parellized.append("\t\t}\n");
                 });
                 parellized.append("\t}\n");
             } else {

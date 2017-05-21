@@ -1,3 +1,9 @@
+#include <bits/stdc++.h>
+
+typedef long long ll;
+const int MAX = 1004;
+
+
 int function (int a, int b) {
 
 }
@@ -6,9 +12,13 @@ int function (int a) {
     function(a, b);
 }
 
+#define max(a, b) (a) < (b) ? (a) : (b)
+
 int hola () {
 
 }
+
+#define check true
 
 int main () {
     vector<int> v(5);

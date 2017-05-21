@@ -166,7 +166,7 @@ public class Block implements Comparable<Block> {
         while (tabs-- > 0) prefix = prefix + "\t";
         StringBuilder builder = new StringBuilder();
         String finalPrefix = prefix;
-        instructions.forEach(inst -> builder.append(finalPrefix + Translator.getText(inst) + "\n"));
+        instructions.forEach(inst -> builder.append(finalPrefix + Translator.getText(inst)));
         return builder.toString();
     }
 }
