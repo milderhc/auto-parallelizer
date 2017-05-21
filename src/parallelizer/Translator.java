@@ -4,19 +4,17 @@ import gen.CPPLexer;
 import gen.CPPParser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import parallelizer.model.Function;
-import visitors.CPPVisitor;
 import visitors.CallGraphVisitor;
 import visitors.FunctionVisitor;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.TreeMap;
 
 /**
  * Created by milderhc on 12/05/17.
@@ -29,25 +27,6 @@ public class Translator {
         ParseTree tree = parser.cpp();
         FunctionVisitor visitor = new FunctionVisitor(program);
         visitor.visit(tree);
-    }
-
-
-    private void temp (CPPParser parser) throws FileNotFoundException, UnsupportedEncodingException {
-        ParseTree tree = parser.cpp();
-
-        CPPVisitor visitor = new CPPVisitor();
-        program = visitor.getProgram();
-
-        TokenStream inputStream = parser.getInputStream();
-        for (int i = 0; i < inputStream.size(); ++i) {
-            Token token = inputStream.get(i);
-            if (token.getChannel() == 1) {
-                program.add(token.getText() + "\n");
-            }
-        }
-
-        visitor.visit(tree);
-        visitor.getProgram().exportCode("output.cpp");
     }
 
     private void buildCallGraph (CPPParser parser) {
@@ -81,7 +60,17 @@ public class Translator {
         return order;
     }
 
+    private void findDependencies(LinkedList<Function> functionsOrder ) {
+        functionsOrder.forEach( f -> f.findDependencies() );
+    }
 
+    private void buildDependencyGraph(LinkedList<Function> functionsOrder) {
+        functionsOrder.forEach( f -> f.buildDependencyGraph() );
+    }
+
+    private void findIslands(LinkedList<Function> functionsOrder) {
+        functionsOrder.forEach( f -> f.findIslands() );
+    }
 
     public void translate (String inputFilename) throws IOException {
         ANTLRInputStream input;
@@ -136,14 +125,18 @@ public class Translator {
             System.out.println("DEPENDENCY GRAPH");
             f.printDependencyGraph();
         });
-    }
 
-    private void findDependencies(LinkedList<Function> functionsOrder ) {
-        functionsOrder.forEach( f -> f.findDependencies() );
-    }
+        findIslands(functionsOrder);
 
-    private void buildDependencyGraph(LinkedList<Function> functionsOrder) {
-        functionsOrder.forEach( f -> f.buildDependencyGraph() );
+        System.out.println("BLOCKS ORDER");
+        functionsOrder.forEach(f -> {
+            System.out.println("FUNCTION " + f.getId());
+            System.out.println("BLOCKS ORDER");
+            f.getBlocksOrder().forEach(xd -> {
+                System.out.println(xd.getKey().getId() + " in island " + xd.getValue());
+            });
+            System.out.println();
+        });
     }
 
     public static void main(String[] args) throws IOException {

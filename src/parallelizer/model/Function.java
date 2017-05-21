@@ -1,9 +1,10 @@
     package parallelizer.model;
 
     import gen.CPPParser;
-import parallelizer.Translator;
+    import javafx.util.Pair;
+    import parallelizer.Translator;
 
-import java.util.*;
+    import java.util.*;
 
     /**
  * Created by milderhc on 16/05/17.
@@ -12,6 +13,7 @@ public class Function implements Comparable<Function> {
 
     private LinkedList<Block> flowGraph;
     private Map<Block, Set<Block>> dependencyGraph;
+    private LinkedList<Pair<Block, Integer>> blocksOrder;
 
     private String id;
     private CPPParser.FunctionBodyContext ctx;
@@ -163,4 +165,31 @@ public class Function implements Comparable<Function> {
         }
     }
 
+    private void findIslands (Block block, Set<Block> visited,
+                              LinkedList<Pair<Block, Integer>> toposort, int currentIsland) {
+        visited.add(block);
+        Set<Block> neighbors = dependencyGraph.get(block);
+        neighbors.forEach(neigh -> {
+            if (!visited.contains(neigh))
+                findIslands(neigh, visited, toposort, currentIsland);
+        });
+
+        toposort.push(new Pair<>(block, currentIsland));
+    }
+
+    public void findIslands() {
+        Set<Block> visited = new TreeSet<>();
+        blocksOrder = new LinkedList<>();
+
+        int currentIsland = 0;
+        for (Map.Entry<Block, Set<Block>> entry : dependencyGraph.entrySet()) {
+            if (!visited.contains(entry.getKey()))
+                findIslands(entry.getKey(), visited, blocksOrder, currentIsland++);
+        }
+    }
+
+
+    public LinkedList<Pair<Block, Integer>> getBlocksOrder() {
+        return blocksOrder;
+    }
 }
