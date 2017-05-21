@@ -247,12 +247,19 @@ public class Function implements Comparable<Function> {
                 parellized.append("\t#pragma omp parallel sections\n\t{\n");
                 section.forEach(block -> {
                     parellized.append("\t\t#pragma omp section\n\t\t{\n");
-                    parellized.append(block.getText(3));
+                    if (!block.getInstructions().isEmpty() && block.getInstructions().get(0).forBlock() != null) {
+                        checkReduction(block.getInstructions().get(0).forBlock(), parellized, 3);
+                    } else
+                        parellized.append(block.getText(3));
                     parellized.append("\t\t}\n");
                 });
                 parellized.append("\t}\n");
             } else {
-                parellized.append(section.get(0).getText(1));
+                if (!section.get(0).getInstructions().isEmpty() &&
+                        section.get(0).getInstructions().get(0).forBlock() != null) {
+                    checkReduction(section.get(0).getInstructions().get(0).forBlock(), parellized, 3);
+                } else
+                    parellized.append(section.get(0).getText(1));
             }
         });
 
@@ -261,5 +268,83 @@ public class Function implements Comparable<Function> {
         parellized.append("}\n");
 
         return parellized.toString();
+    }
+
+    private void checkReduction(CPPParser.ForBlockContext forBlockContext, StringBuilder parellized, int tabs) {
+        if (forBlockContext.controlStructureBody().scope() != null) {
+            Set<String> read = new TreeSet<>(), written = new TreeSet<>();
+            forBlockContext.controlStructureBody().scope().instruction().forEach(inst -> {
+                if (inst.assignmentBlock() != null) {
+                    inst.assignmentBlock().assignment().forEach(assign -> {
+                        if (assign.callSomething().accessBrackets() != null) {
+                            String left = assign.callSomething().getText();
+                            if (assign.properAssignment().assignmentOp().size() == 1) {
+                                String op = assign.properAssignment().assignmentOp().get(0).getText();
+                                if ("+=@-=@*=@|=@&=@^=".contains(op)) {
+                                    List<String> list = analyze(Translator.getText(assign.properAssignment().expression())).getKey();
+
+                                } else {
+
+
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        } else if (forBlockContext.controlStructureBody().instruction() != null) {
+
+        }
+    }
+
+
+    private Pair<List<String>, Integer> analyze (String text) {
+        StringBuilder current = new StringBuilder();
+
+        List<String> variables = new LinkedList<>();
+
+        int type = 0;
+        for (char c : text.toCharArray()) {
+            if (c == '(') {
+                current = new StringBuilder();
+            }
+            else if (c == '[') {
+                if (current.length() > 0) {
+                    variables.add(current.toString());
+                }
+                current = new StringBuilder();
+            }
+
+            if ("=!<>+-*/%&|^~([]), ".indexOf(c) == -1) {
+                if ("0123456789".indexOf(c) == -1 || current.length() > 0)
+                    current.append(c);
+            } else {
+                if (current.length() > 0) {
+                    String id = current.toString();
+                    if (!id.equals("or") && !id.equals("and") && !id.equals("xor")) {
+                        variables.add(id);
+                    }
+
+                    if (id.equals("cin")) {
+                        type = 1;
+                    } else if (id.equals("cout"))
+                        type = 2;
+                    current = new StringBuilder();
+                }
+            }
+        }
+        if (current.length() > 0) {
+            String id = current.toString();
+            if (!id.equals("or") && !id.equals("and") && !id.equals("xor")) {
+                variables.add(id);
+            }
+
+            if (id.equals("cin")) {
+                type = 1;
+            } else if (id.equals("cout"))
+                type = 2;
+        }
+
+        return new Pair<>(variables, type);
     }
 }

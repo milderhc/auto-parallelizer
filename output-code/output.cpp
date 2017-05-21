@@ -8,23 +8,29 @@ const double EPS = 1e-6;
 const int INF = INT_MAX;
 double v[MAX], x[MAX];
 int n;
-int function (int c) {
-	return 10;
+int f1 () {
+	vector<int> a(10);
+	for (int i = 0; i < 10; ++i)
+        a[i] = i;
+}
+int xd (int a) {
+	return a + 2;
+}
+int f2() {
+	vector<int> b(10);
+	for (int i = 0; i < 10; ++i)
+        b[i] = xd(i);
 }
 int main( ) {
-	vector<int> a(10);
-	vector<int> b(10);
 	#pragma omp parallel sections
 	{
 		#pragma omp section
 		{
-			for (int i = 0; i < 10; ++i)
-        b[i] = function(i);
+			f2();
 		}
 		#pragma omp section
 		{
-			for (int i = 0; i < 10; ++i)
-        a[i] = i;
+			f1();
 		}
 	}
 }
