@@ -126,12 +126,7 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
 
     @Override
     public T visitProperDeclaration (CPPParser.ProperDeclarationContext ctx) {
-        ctx.id().forEach(id -> {
-            deadVariables.add(id.getText());
-            aliveVariables.remove(id.getText());
-        });
-
-        return visitChildren(ctx);
+        return null;
     }
 
     @Override
@@ -172,6 +167,7 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
             String name = Function.getVirtualName(ctx);
             if( Translator.program.getDefinedFunctions().containsKey(name) ) {
                 Function f = Translator.program.getDefinedFunctions().get(name);
+                System.out.println(name + " " +f);
                 f.getDeadVariables().forEach(var -> {
                     aliveVariables.remove(var);
                     deadVariables.add(var);

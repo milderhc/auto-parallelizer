@@ -12,10 +12,7 @@ import visitors.GlobalVisitor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by milderhc on 12/05/17.
@@ -61,6 +58,28 @@ public class Translator {
         }
 
         return order;
+    }
+
+    private void deadCodeEliminitation (Function current,
+                                                        Set<Function> visited, LinkedList<Function> newOrder) {
+        visited.add(current);
+        program.getCallGraph().get(current).forEach(neigh -> {
+            if (!visited.contains(neigh))
+                deadCodeEliminitation(neigh, visited, newOrder);
+        });
+        newOrder.add(current);
+    }
+
+    private LinkedList<Function> deadCodeEliminitation (LinkedList<Function> order) {
+        Set<Function> visited = new TreeSet<>();
+        LinkedList<Function> newOrder = new LinkedList<>();
+
+        order.forEach(f -> {
+            if (f.getId().equals("main"))
+                deadCodeEliminitation(f, visited, newOrder);
+        });
+
+        return newOrder;
     }
 
     private void findDependencies(LinkedList<Function> functionsOrder ) {
@@ -131,6 +150,8 @@ public class Translator {
 
         System.out.println();
         findDependencies(functionsOrder);
+
+        functionsOrder = deadCodeEliminitation(functionsOrder);
 
         functionsOrder.forEach( f -> {
             System.out.println("FUNCTION " + f.getId() );

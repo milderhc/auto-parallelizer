@@ -14,6 +14,8 @@ public class Block implements Comparable<Block> {
     private Set<String> aliveVariables, deadVariables;
     private int id;
 
+
+
     public Block (int id) {
         instructions = new LinkedList<>(); this.id = id;
     }

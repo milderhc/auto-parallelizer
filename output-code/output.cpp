@@ -8,57 +8,23 @@ const double EPS = 1e-6;
 const int INF = INT_MAX;
 double v[MAX], x[MAX];
 int n;
-int function (int a) {
+int function (int c) {
 	return 10;
 }
-double get_t(double p) {
-	#pragma omp parallel sections
-	{
-		#pragma omp section
-		{
-			int b = 20;
-		}
-		#pragma omp section
-		{
-			int a = 10;
-		}
-	}
-	#pragma omp parallel sections
-	{
-		#pragma omp section
-		{
-			function(b);
-		}
-		#pragma omp section
-		{
-			function(a);
-		}
-	}
-	return ret;
-}
 int main( ) {
-	ios_base::sync_with_stdio(0);
-	cin >> n;
-	double low  = INT_MAX, high = -1;
-	for(int i = 0; i < n; i++) {
-        cin >> x[i];
-        low = min(low, x[i]);
-        high = max(high, x[i]);
-    }
-	while(abs(low-high) > EPS) {
-        double mid1 = low + (high-low)/3;
-        double mid2 = high - (high-low)/3;
-        double f1 = get_t(mid1);
-        double f2 = get_t(mid2);
-//        cout << low << " " << high << endl;
-//        cout << mid1 << " " << mid2 << endl;
-//        cout << f1 << " " << f2 << endl;
-//        system("pause");
-        if(f1 < f2) high = mid2;
-        else low = mid1;
-    }
-	cout << fixed << setprecision(10) << get_t((low+high)/2.0) << "\n";
-	for(int i = 0; i < n; i++) {
-        cin >> v[i];
-    }
+	vector<int> a(10);
+	vector<int> b(10);
+	#pragma omp parallel sections
+	{
+		#pragma omp section
+		{
+			for (int i = 0; i < 10; ++i)
+        b[i] = function(i);
+		}
+		#pragma omp section
+		{
+			for (int i = 0; i < 10; ++i)
+        a[i] = i;
+		}
+	}
 }
