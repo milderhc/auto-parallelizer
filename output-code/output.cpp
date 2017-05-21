@@ -1,36 +1,45 @@
-#include <bits/stdc++.h>
-using namespace std;
-
+int function (int a, int b) {
+}
+int function (int a) {
+	function(a, b);
+}
 int main () {
-    int n;
-    cin >> n;
-    vector<int> a ( n );
-    for ( int i = 0; i < n; ++i )
-        cin >> a[i];
+	#pragma omp sections
+	{
+		#pragma omp section
+		{
+		int h = 10;
 
-    int sum = 0;
-    for ( int i = 0; i < n; ++i )
-        sum += a[i];
+		}
+		#pragma omp section
+		{
+		c = 50;
+		d = 6;
 
-    if ( sum != 0 ) {
-        cout << "YES\n";
-        cout << "1\n";
-        cout << 1 << " " << n << "\n";
-        return 0;
-    }
+		}
+		#pragma omp section
+		{
+		vector<int> v(5);
+		a = 10;
+		b = a + 15;
 
-    int sumA = 0;
-    for ( int i = 0; i+1 < n; ++i ) {
-        sumA += a[i];
-        if ( sumA != 0 && sum - sumA != 0 ) {
-            cout << "YES\n";
-            cout << "2\n";
-            cout << 1 << " " << i+1 << endl;
-            cout << i+2 << " " << n << endl;
-            return 0;
+		}
+	}
+	function(a, b + 10);
+	function(a);
+	for (int i = 0; i < c; ++i) {
+        int xd = d;
+
+        while (h < c) {
+            a += h;
         }
-    }
 
-    cout << "NO\n";
-    return 0;
-}#pragma#pragma#pragma
+        d += i;
+
+    }
+	function(a);
+	function(a);
+	int e = 18;
+	a = 32;
+	b = e + 15;
+}

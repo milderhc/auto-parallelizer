@@ -4,6 +4,8 @@ import gen.CPPLexer;
 import gen.CPPParser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import parallelizer.model.Function;
 import visitors.CallGraphVisitor;
@@ -72,6 +74,10 @@ public class Translator {
         functionsOrder.forEach( f -> f.findIslands() );
     }
 
+    private void parallelize(LinkedList<Function> functionsOrder) {
+        functionsOrder.forEach( f -> program.add(f.parallelize()) );
+    }
+
     public void translate (String inputFilename) throws IOException {
         ANTLRInputStream input;
         if (inputFilename == null)
@@ -137,6 +143,17 @@ public class Translator {
             });
             System.out.println();
         });
+
+        parallelize(functionsOrder);
+
+        program.exportCode("output.cpp");
+    }
+
+    public static String getText (ParserRuleContext ctx) {
+        int a = ctx.start.getStartIndex();
+        int b = ctx.stop.getStopIndex();
+        Interval interval = new Interval(a,b);
+        return ctx.start.getInputStream().getText(interval);
     }
 
     public static void main(String[] args) throws IOException {

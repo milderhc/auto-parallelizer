@@ -1,9 +1,7 @@
 grammar CPP;
 
 //operators
-cpp                     : global* mainBlock? EOF ;
-
-mainBlock               : main global* ;
+cpp                     : global* (main global*)? EOF ;
 
 global                  : typedef
                         | structClass
@@ -16,6 +14,9 @@ global                  : typedef
                         | MULTILINEMACRO
                         | DIRECTIVE
                         ;
+
+main                    : mainSign functionBody ;
+mainSign                : 'int'? 'main' '(' parameters? ')' ;
 
 namespace               : 'namespace' ID '{' global* '}' ;
 using                   : 'using' 'namespace'? nestedNamespace ';' ;
@@ -33,7 +34,8 @@ datatypeDefinition      : nestedNamespace ('<' datatype (',' datatype)* '>')?
                         ;
 
 template                : 'template' '<' ('class' | 'typename') ID '>' ;
-function                : template? 'inline'? (datatype | 'void') id '(' parameters? ')' 'const'? functionRem ;
+function                : functionSign functionRem ;
+functionSign            : template? 'inline'? (datatype | 'void') id '(' parameters? ')' 'const'? ;
 functionRem             : functionBody
                         | ';'
                         ;
@@ -169,8 +171,6 @@ unOp1                   : '!' | '~' ;
 unOp2                   : '-' | '+' | increaseOp ;
 
 increaseOp              : '--' | '++' ;
-
-main                    : 'int'? 'main' '(' parameters? ')' functionBody ;
 
 ID                      : [a-zA-Z_][a-zA-Z0-9_]* ;
 

@@ -30,10 +30,6 @@ public class Program {
         translatedCode.append(newContent);
     }
 
-    public String getTranslatedCode() {
-        return translatedCode.toString();
-    }
-
     public void exportCode (String file) throws FileNotFoundException, UnsupportedEncodingException {
         String filename = OUTPUT_CODE_FOLDER + "/" + file;
         printToFile(filename, translatedCode.toString());

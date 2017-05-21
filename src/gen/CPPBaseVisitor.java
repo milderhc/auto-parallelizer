@@ -24,14 +24,21 @@ public class CPPBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements CP
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMainBlock(CPPParser.MainBlockContext ctx) { return visitChildren(ctx); }
+	@Override public T visitGlobal(CPPParser.GlobalContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitGlobal(CPPParser.GlobalContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMain(CPPParser.MainContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitMainSign(CPPParser.MainSignContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -102,6 +109,13 @@ public class CPPBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements CP
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitFunction(CPPParser.FunctionContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitFunctionSign(CPPParser.FunctionSignContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -445,11 +459,4 @@ public class CPPBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements CP
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitIncreaseOp(CPPParser.IncreaseOpContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitMain(CPPParser.MainContext ctx) { return visitChildren(ctx); }
 }

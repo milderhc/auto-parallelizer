@@ -17,17 +17,23 @@ public interface CPPVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCpp(CPPParser.CppContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link CPPParser#mainBlock}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMainBlock(CPPParser.MainBlockContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link CPPParser#global}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitGlobal(CPPParser.GlobalContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link CPPParser#main}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMain(CPPParser.MainContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link CPPParser#mainSign}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMainSign(CPPParser.MainSignContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link CPPParser#namespace}.
 	 * @param ctx the parse tree
@@ -88,6 +94,12 @@ public interface CPPVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunction(CPPParser.FunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link CPPParser#functionSign}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionSign(CPPParser.FunctionSignContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link CPPParser#functionRem}.
 	 * @param ctx the parse tree
@@ -382,10 +394,4 @@ public interface CPPVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitIncreaseOp(CPPParser.IncreaseOpContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link CPPParser#main}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMain(CPPParser.MainContext ctx);
 }

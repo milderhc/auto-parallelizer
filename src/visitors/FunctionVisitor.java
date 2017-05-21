@@ -18,7 +18,7 @@ public class FunctionVisitor<T> extends CPPBaseVisitor<T> {
 
     @Override
     public T visitMain (CPPParser.MainContext ctx) {
-        program.setMain(new Function("main", ctx.functionBody()));
+        program.setMain(new Function("main", ctx.functionBody(), ctx));
         program.getDefinedFunctions().put("main", program.getMain());
         return null;
     }
@@ -29,7 +29,7 @@ public class FunctionVisitor<T> extends CPPBaseVisitor<T> {
             return null;
 
         String name = Function.getVirtualName(ctx);
-        program.getDefinedFunctions().put(name, new Function(name, ctx.functionRem().functionBody()));
+        program.getDefinedFunctions().put(name, new Function(name, ctx.functionRem().functionBody(), ctx));
 
         return null;
     }

@@ -1,6 +1,7 @@
 package parallelizer.model;
 
 import gen.CPPParser;
+import parallelizer.Translator;
 import visitors.VariableVisitor;
 
 import java.util.*;
@@ -158,5 +159,14 @@ public class Block implements Comparable<Block> {
     @Override
     public int compareTo(Block o) {
         return id - o.getId();
+    }
+
+    public String getText(int tabs) {
+        String prefix = "";
+        while (tabs-- > 0) prefix = prefix + "\t";
+        StringBuilder builder = new StringBuilder();
+        String finalPrefix = prefix;
+        instructions.forEach(inst -> builder.append(finalPrefix + Translator.getText(inst) + "\n"));
+        return builder.toString();
     }
 }
