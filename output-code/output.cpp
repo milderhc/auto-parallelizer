@@ -1,47 +1,56 @@
-#include <bits/stdc++.h>
-#define max(a, b) (a) < (b) ? (a) : (b)
-#define check true
+#include<bits/stdc++.h>
+using namespace std;
 typedef long long ll;
-const int MAX = 1004;
-int function (int a, int b) {
-}
-int function (int a) {
-	function(a, b);
-}
-int main () {
+typedef pair<int, int> ii;
+typedef pair<int, ii> iii;
+const int MAX = 60006;
+const double EPS = 1e-6;
+const int INF = INT_MAX;
+double v[MAX], x[MAX];
+int n;
+double get_t(double p) {
 	#pragma omp sections
 	{
 		#pragma omp section
 		{
-			int h = 10;
+			return ret;
 		}
 		#pragma omp section
 		{
-			c = 50;
-			d = 6;
-		}
-		#pragma omp section
-		{
-			vector<int> v(5);
-			a = 10;
-			b = a + 15;
+			double ret = 0;
 		}
 	}
-	function(a, b + 10);
-	function(a);
-	for (int i = 0; i < c; ++i) {
-        int xd = d;
-
-        while (h < c) {
-            a += h;
+	for(int i = 0; i < n; i++) {
+        if(p >= x[i]) {
+            ret = max(ret, (p-x[i])/v[i]);
+        } else {
+            ret = max(ret, (x[i]-p)/v[i]);
         }
-
-        d += i;
-
     }
-	function(a);
-	function(a);
-	int e = 18;
-	a = 32;
-	b = e + 15;
+}
+int main( ) {
+	ios_base::sync_with_stdio(0);
+	cin >> n;
+	double low  = INT_MAX, high = -1;
+	for(int i = 0; i < n; i++) {
+        cin >> x[i];
+        low = min(low, x[i]);
+        high = max(high, x[i]);
+    }
+	while(abs(low-high) > EPS) {
+        double mid1 = low + (high-low)/3;
+        double mid2 = high - (high-low)/3;
+        double f1 = get_t(mid1);
+        double f2 = get_t(mid2);
+//        cout << low << " " << high << endl;
+//        cout << mid1 << " " << mid2 << endl;
+//        cout << f1 << " " << f2 << endl;
+//        system("pause");
+        if(f1 < f2) high = mid2;
+        else low = mid1;
+    }
+	cout << fixed << setprecision(10) << get_t((low+high)/2.0) << "\n";
+	for(int i = 0; i < n; i++) {
+        cin >> v[i];
+    }
 }

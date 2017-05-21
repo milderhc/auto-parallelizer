@@ -74,9 +74,11 @@ instruction             : declarationBlock
                         | ';'
                         | 'break' ';'
                         | 'continue' ';'
-                        | 'return' expression? ';'
+                        | returnBlock
                         | expression (',' expression)* ';'
                         ;
+
+returnBlock             : 'return' expression? ';' ;
 
 scope                   : '{' instruction* '}' ;
 

@@ -115,6 +115,8 @@ public class Block implements Comparable<Block> {
             CPPParser.InstructionContext next = it.next();
             if (isScope(next))
                 getAliveDeadVariablesControlStructure(next);
+            else if (!next.expression().isEmpty())
+                next.expression().forEach(expr -> new VariableVisitor(expr, aliveVariables, deadVariables));
             else
                 new VariableVisitor(next, aliveVariables, deadVariables);
         }

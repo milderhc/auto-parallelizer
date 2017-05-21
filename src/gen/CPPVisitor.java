@@ -185,6 +185,12 @@ public interface CPPVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInstruction(CPPParser.InstructionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link CPPParser#returnBlock}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnBlock(CPPParser.ReturnBlockContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link CPPParser#scope}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

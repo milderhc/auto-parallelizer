@@ -136,14 +136,6 @@ public class Function implements Comparable<Function> {
         return name.toString();
     }
 
-    public boolean checkDependency (Set<String> alive, Set<String> dead) {
-        for (String a : alive) {
-            if (dead.contains(a))
-                return true;
-        }
-        return false;
-    }
-
     public void buildDependencyGraph() {
         if (flowGraph.isEmpty())
             return;

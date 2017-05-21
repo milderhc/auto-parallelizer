@@ -220,6 +220,13 @@ public class CPPBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements CP
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitReturnBlock(CPPParser.ReturnBlockContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitScope(CPPParser.ScopeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

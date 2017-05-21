@@ -2,6 +2,7 @@ package visitors;
 
 import gen.CPPBaseVisitor;
 import gen.CPPParser;
+import javafx.util.Pair;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import parallelizer.Translator;
@@ -35,10 +36,7 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
 
     public VariableVisitor(CPPParser.ExpressionContext inst, Set<String> aliveVariables, Set<String> deadVariables) {
         this(aliveVariables, deadVariables);
-        analyze(getText(inst)).forEach(rightId -> {
-            deadVariables.remove(rightId);
-            aliveVariables.add(rightId);
-        });
+        analyzeExpression(analyze(getText(inst)));
     }
 
     public VariableVisitor(CPPParser.ForEachContext inst, Set<String> aliveVariables, Set<String> deadVariables) {
@@ -53,23 +51,24 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
         return ctx.start.getInputStream().getText(interval);
     }
 
-    private List<String> analyze (String text) {
+    private Pair<List<String>, Integer> analyze (String text) {
         StringBuilder current = new StringBuilder();
-        int cont1 = 0, cont2 = 0;
 
         List<String> variables = new LinkedList<>();
 
+        int type = 0;
         for (char c : text.toCharArray()) {
             if (c == '(') {
                 current = new StringBuilder();
-            } else if (c == '[') {
+            }
+            else if (c == '[') {
                 if (current.length() > 0) {
                     variables.add(current.toString());
                 }
                 current = new StringBuilder();
             }
 
-            if ("=!<>+-*/%&|^~([]) ".indexOf(c) == -1) {
+            if ("=!<>+-*/%&|^~([]), ".indexOf(c) == -1) {
                 if ("0123456789".indexOf(c) == -1 || current.length() > 0)
                     current.append(c);
             } else {
@@ -78,6 +77,11 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
                     if (!id.equals("or") && !id.equals("and") && !id.equals("xor")) {
                         variables.add(id);
                     }
+
+                    if (id.equals("cin")) {
+                        type = 1;
+                    } else if (id.equals("cout"))
+                        type = 2;
                     current = new StringBuilder();
                 }
             }
@@ -87,9 +91,39 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
             if (!id.equals("or") && !id.equals("and") && !id.equals("xor")) {
                 variables.add(id);
             }
+
+            if (id.equals("cin")) {
+                type = 1;
+            } else if (id.equals("cout"))
+                type = 2;
         }
 
-        return variables;
+        return new Pair<>(variables, type);
+    }
+
+    private void analyzeExpression (Pair<List<String>, Integer> pair) {
+        List<String> variable = pair.getKey();
+        int type = pair.getValue();
+        if (type == 0) {
+            variable.forEach(id -> {
+//                deadVariables.remove(rightId);
+                aliveVariables.add(id);
+            });
+        } else if (type == 1) {
+            variable.forEach(id -> {
+                aliveVariables.remove(id);
+                deadVariables.add(id);
+            });
+            aliveVariables.add("cin");
+        } else if (type == 2) {
+            variable.forEach(id -> {
+//                deadVariables.remove(id);
+                aliveVariables.add(id);
+            });
+            deadVariables.add("cout");
+        }
+
+
     }
 
     @Override
@@ -104,14 +138,7 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
 
     @Override
     public T visitProperAssignment (CPPParser.ProperAssignmentContext ctx) {
-//        System.out.println("Expression ->>>> " + getText(ctx.expression()));
-//        System.out.println("ids");
-        analyze(getText(ctx.expression())).forEach(rightId -> {
-            deadVariables.remove(rightId);
-            aliveVariables.add(rightId);
-
-//            System.out.print(rightId + " ");
-        });
+        analyzeExpression(analyze(getText(ctx.expression())));
         System.out.println();
 
         return visitChildren(ctx);
@@ -120,11 +147,7 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
     @Override
     public T visitAccessBrackets (CPPParser.AccessBracketsContext access) {
         access.expression().forEach(expr -> {
-            analyze(getText(expr)).forEach(rightId -> {
-                System.out.println("HEREEEEE " + getText(expr));
-                deadVariables.remove(rightId);
-                aliveVariables.add(rightId);
-            });
+            analyzeExpression(analyze(getText(expr)));
         });
 
         return null;
@@ -138,7 +161,7 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
             deadVariables.add(leftId);
         } else {
             String leftId = ctx.callSomething().id().getText();
-            deadVariables.remove(leftId);
+//            deadVariables.remove(leftId);
             aliveVariables.add(leftId);
         }
 
@@ -156,23 +179,17 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
                     deadVariables.add(var);
                 });
                 f.getAliveVariables().forEach(var -> {
-                    deadVariables.remove(var);
+//                    deadVariables.remove(var);
                     aliveVariables.add(var);
                 });
             }
             if( ctx.callFunction().functionArguments() != null ) {
                 ctx.callFunction().functionArguments().expression().forEach( expr -> {
-                    analyze(getText(expr)).forEach(rightId -> {
-                        deadVariables.remove(rightId);
-                        aliveVariables.add(rightId);
-                    });
+                    analyzeExpression(analyze(getText(expr)));
                 });
             }
         } else if (ctx.increaseOp() != null) {
-            analyze(getText(ctx)).forEach(rightId -> {
-                deadVariables.remove(rightId);
-                aliveVariables.add(rightId);
-            });
+            analyzeExpression(analyze(getText(ctx)));
         }
 
         return visitChildren(ctx);
@@ -181,10 +198,7 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
     @Override
     public T visitExpression (CPPParser.ExpressionContext ctx) {
         if (ctx.unOp2() != null && ctx.unOp2().increaseOp() != null) {
-            analyze(getText(ctx)).forEach(rightId -> {
-                deadVariables.remove(rightId);
-                aliveVariables.add(rightId);
-            });
+            analyzeExpression(analyze(getText(ctx)));
         }
 
         return null;
