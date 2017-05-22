@@ -275,92 +275,85 @@ public class Function implements Comparable<Function> {
     }
 
     private void parallelizeReduction(Block block, Map<String, List<String>> reduction, StringBuilder parallelized, int tabs) {
-        if (reduction.isEmpty())
-            return;
+        if (reduction != null && !reduction.isEmpty()) {
+            String prefix = "";
+            for (int i = 0; i < tabs; ++i) prefix = prefix + "\t";
 
-        String prefix = "";
-        for (int i = 0; i < tabs; ++i) prefix = prefix + "\t";
+            parallelized.append(prefix + "#pragma omp parallel for");
+            reduction.forEach((op, ids) -> {
+                parallelized.append(" reduction(" + op + ":");
+                for (int i = 0; i < ids.size(); ++i) {
+                    if (i > 0)
+                        parallelized.append(",");
+                    parallelized.append(ids.get(i));
+                }
+                parallelized.append(")");
+            });
+            parallelized.append("\n");
+        }
 
-        parallelized.append(prefix + "#pragma omp parallel for");
-        reduction.forEach((op, ids) -> {
-            parallelized.append(" reduction(" + op + ":");
-            for (int i = 0; i < ids.size(); ++i) {
-                if (i > 0)
-                    parallelized.append(",");
-                parallelized.append(ids.get(i));
-            }
-            parallelized.append(")");
-        });
-
-        parallelized.append("\n" + block.getText(tabs));
+        parallelized.append(block.getText(tabs));
     }
 
-    private void checkAssignment (CPPParser.AssignmentContext assign, Map<String, String> possibleReductionVariables) {
+    private boolean checkAssignment (CPPParser.AssignmentContext assign, Map<String, String> reductionVariables) {
         //Only scalar assignments are valid
         if (assign.callSomething().accessBrackets().isEmpty()) {
             String left = assign.callSomething().getText();
 
-            boolean reductionVariable = true;
-            if (possibleReductionVariables.containsKey(left)) {
-                reductionVariable = false;
-                possibleReductionVariables.remove(left);
-            }
+            if (reductionVariables.containsKey(left))
+                return false;
 
             String op = "";
-            if (assign.properAssignment().assignmentOp().size() == 1) {
-                op = assign.properAssignment().assignmentOp().get(0).getText();
-                Pair<List<String>, Integer> analyzed = analyze(Translator.getText(assign.properAssignment().expression()));
+            if (assign.properAssignment().assignmentOp().size() != 1) return false;
 
-                if (analyzed.getValue() != 0)
-                    reductionVariable = false;
+            op = assign.properAssignment().assignmentOp().get(0).getText();
+            Pair<List<String>, Integer> analyzed = analyze(Translator.getText(assign.properAssignment().expression()));
 
-                List<String> right = analyzed.getKey();
-                int occurrences = 0;
-                for (String id : right) {
-                    if (possibleReductionVariables.containsKey(id))
-                        possibleReductionVariables.remove(id);
-                    if (id.equals(left))
-                        ++occurrences;
-                }
+            if (analyzed.getValue() != 0)
+                return false;
 
-                if ("+=@-=@*=@|=@&=@^=".contains(op)) {
-                    if (occurrences != 0)
-                        reductionVariable = false;
-                } else if (op.equals("=")) {
-                    if (occurrences != 1)
-                        reductionVariable = false;
-                } else
-                    reductionVariable = false;
+            List<String> right = analyzed.getKey();
+            int occurrences = 0;
+            for (String id : right) {
+                if (reductionVariables.containsKey(id))
+                    reductionVariables.remove(id);
+                if (id.equals(left))
+                    ++occurrences;
+            }
 
-            } else
-                reductionVariable = false;
+            if ("=".contains(op) && occurrences != 1) return false;
+            if ("+=@-=@*=@|=@&=@^=".contains(op) && occurrences != 0) return false;
 
-            if (reductionVariable)
-                possibleReductionVariables.put(left, op.replace("=", ""));
+            reductionVariables.put(left, op.replace("=", ""));
         }
+
+        return true;
     }
 
     private Map<String, List<String>> checkReduction(CPPParser.ControlStructureBodyContext ctx) {
-        Map<String, String> possibleReductionVariables = new TreeMap<>();
-        
+        Map<String, String> reductionVariables = new TreeMap<>();
+
+        //if one assignment does not support reduction, the entire 'for' neither
         if (ctx.scope() != null) {
-            ctx.scope().instruction().forEach(inst -> {
+            for (CPPParser.InstructionContext inst : ctx.scope().instruction()) {
                 if (inst.assignmentBlock() != null) {
-                    inst.assignmentBlock().assignment().forEach(assign -> {
-                        checkAssignment(assign, possibleReductionVariables);
-                    });
+                    for (CPPParser.AssignmentContext assign : inst.assignmentBlock().assignment()) {
+                        if (!checkAssignment(assign, reductionVariables))
+                            return null;
+                    }
                 }
-            });
+            }
         } else if (ctx.instruction() != null) {
             if (ctx.instruction().assignmentBlock() != null) {
-                ctx.instruction().assignmentBlock().assignment().forEach(assign -> {
-                    checkAssignment(assign, possibleReductionVariables);
-                });
+                for (CPPParser.AssignmentContext assign : ctx.instruction().assignmentBlock().assignment()) {
+                    if (!checkAssignment(assign, reductionVariables))
+                        return null;
+                }
             }
         }
         
         Map<String, List<String>> reductionOperations = new TreeMap<>();
-        possibleReductionVariables.forEach((id, op) -> {
+        reductionVariables.forEach((id, op) -> {
             if (!reductionOperations.containsKey(op))
                 reductionOperations.put(op, new LinkedList<>());
 
