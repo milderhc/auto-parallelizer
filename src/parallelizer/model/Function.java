@@ -321,7 +321,11 @@ public class Function implements Comparable<Function> {
                     ++occurrences;
             }
 
-            if ("=".contains(op) && occurrences != 1) return false;
+            if ("=".contains(op)) {
+                if (occurrences != 1) return false;
+
+                //TODO support direct assignments
+            }
             if ("+=@-=@*=@|=@&=@^=".contains(op) && occurrences != 0) return false;
 
             reductionVariables.put(left, op.replace("=", ""));

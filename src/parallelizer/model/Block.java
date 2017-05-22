@@ -28,23 +28,6 @@ public class Block implements Comparable<Block> {
         return instructions;
     }
 
-//    int a;
-//    int c;
-//    c = 10;
-//    for (...) {
-//        int x = 2;
-//        for (int ...) {
-//            a += x;
-//            j = h;
-//        }
-//        e = 10 + c;
-//    }
-//
-//    int a =0 ;
-//        for ()
-//                for ()
-//    a += 2;
-
     public void getAliveDeadVariablesControlStructureBody (CPPParser.ControlStructureBodyContext body) {
         if (body.scope() != null)
             getAliveDeadVariables(new LinkedList<>(body.scope().instruction()));
@@ -167,10 +150,26 @@ public class Block implements Comparable<Block> {
 
     public String getText(int tabs) {
         String prefix = "";
-        while (tabs-- > 0) prefix = prefix + "\t";
+        while (tabs-- > 1) prefix = prefix + "\t";
         StringBuilder builder = new StringBuilder();
         String finalPrefix = prefix;
-        instructions.forEach(inst -> builder.append(finalPrefix + Translator.getText(inst)));
+
+//        instructions.forEach(inst -> builder.append(finalPrefix + Translator.getText(inst)));
+
+        instructions.forEach(inst -> {
+            String text = Translator.getText(inst);
+            boolean addPrefix = false;
+            builder.append(finalPrefix + "\t");
+            for (char c : text.toCharArray()) {
+                if (addPrefix) {
+                    addPrefix = false;
+                    builder.append(finalPrefix);
+                }
+                builder.append(c);
+                if (c == '\n')
+                    addPrefix = true;
+            }
+        });
         return builder.toString();
     }
 }

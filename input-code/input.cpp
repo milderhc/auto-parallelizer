@@ -27,11 +27,17 @@ int main( ) {
 
     int sum2 = 0, sum3 = 0, sum4 = 1;
     for (int i = 1; i < n; ++i) {
-        sum += i;
         sum2 -= f(i);
         sum3 += 2 * i + i * i + f(i);
         sum4 *= i;
     }
 
-    cout << sum << ' ' << sum2 << ' ' << sum3 << ' ' << sum4 << endl;
+    int tmp = 0;
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            tmp += j;
+        }
+    }
+
+    cout << sum << ' ' << sum2 << ' ' << sum3 << ' ' << sum4 << ' ' << tmp << endl;
 }
