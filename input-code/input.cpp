@@ -31,7 +31,7 @@ int main( ) {
         sum3 += 2 * i + i * i + f(i);
         sum4 *= i;
         sum5 = min( sum5 , max(i+i, i*i) ) ;
-        sum6 = max( sum6 , i*i*i ) ;
+        sum6 = ( ( ( ( max( sum6 , i*i*i ) ) ) ) );
     }
 
     int tmp = 0;

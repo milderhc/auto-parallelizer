@@ -327,6 +327,7 @@ public class Function implements Comparable<Function> {
                     return checkMinMax(left, assign.properAssignment().expression().expression2(), reductionVariables);
                 else {
                     //TODO support direct assignments
+
                     return false;
                 }
             }
@@ -339,6 +340,10 @@ public class Function implements Comparable<Function> {
     }
 
         private boolean checkMinMax(String left, CPPParser.Expression2Context expr2, Map<String, String> reductionVariables) {
+            while( expr2.expression() != null && expr2.expression().size() == 1 ) {
+                if( expr2.expression().get(0).expression2() == null ) return false;
+                expr2 = expr2.expression().get(0).expression2();
+            }
             if( expr2.callSomething() == null )
                 return false;
             String callSomId = expr2.callSomething().id().getText();
