@@ -364,7 +364,7 @@ public class Function implements Comparable<Function> {
     }
 
 
-    private Pair<List<String>, Integer> analyze (String text) {
+    public static Pair<List<String>, Integer> analyze (String text) {
         StringBuilder current = new StringBuilder();
 
         List<String> variables = new LinkedList<>();
@@ -381,7 +381,7 @@ public class Function implements Comparable<Function> {
                 current = new StringBuilder();
             }
 
-            if ("=!<>+-*/%&|^~([]), ".indexOf(c) == -1) {
+            if ("=!<>+-*/%&|^~([])'\"{}#, ".indexOf(c) == -1) {
                 if ("0123456789".indexOf(c) == -1 || current.length() > 0)
                     current.append(c);
             } else {
