@@ -303,11 +303,11 @@ public class Function implements Comparable<Function> {
             if (reductionVariables.containsKey(left))
                 return false;
 
-            String op = "";
             if (assign.properAssignment().assignmentOp().size() != 1) return false;
 
-            op = assign.properAssignment().assignmentOp().get(0).getText();
-            Pair<List<String>, Integer> analyzed = analyze(Translator.getText(assign.properAssignment().expression()));
+            String op = assign.properAssignment().assignmentOp().get(0).getText();
+            String code = Translator.getText(assign.properAssignment().expression());
+            Pair<List<String>, Integer> analyzed = analyze( code );
 
             if (analyzed.getValue() != 0)
                 return false;
@@ -323,8 +323,12 @@ public class Function implements Comparable<Function> {
 
             if ("=".contains(op)) {
                 if (occurrences != 1) return false;
-
-                //TODO support direct assignments
+                if( assign.properAssignment().expression().expression2() != null)
+                    return checkMinMax(left, assign.properAssignment().expression().expression2(), reductionVariables);
+                else {
+                    //TODO support direct assignments
+                    return false;
+                }
             }
             if ("+=@-=@*=@|=@&=@^=".contains(op) && occurrences != 0) return false;
 
@@ -334,7 +338,28 @@ public class Function implements Comparable<Function> {
         return true;
     }
 
-    private Map<String, List<String>> checkReduction(CPPParser.ControlStructureBodyContext ctx) {
+        private boolean checkMinMax(String left, CPPParser.Expression2Context expr2, Map<String, String> reductionVariables) {
+            if( expr2.callSomething() == null )
+                return false;
+            String callSomId = expr2.callSomething().id().getText();
+            if( !(callSomId.equals("min") || callSomId.equals("max")) )
+                return false;
+            CPPParser.FunctionArgumentsContext fac = expr2.callSomething().callFunction().functionArguments();
+            if( fac.expression().size() != 2 )
+                return false;
+            List<String> leftExpressionIds = analyze( Translator.getText( fac.expression(0) ) ).getKey();
+            List<String> rightExpressionIds = analyze( Translator.getText( fac.expression(1) ) ).getKey();
+            boolean idFound = false;
+            if( leftExpressionIds.size() == 1 )
+                idFound |= leftExpressionIds.get(0).equals( left+"\n" );
+            if( rightExpressionIds.size() == 1 )
+                idFound |= rightExpressionIds.get(0).equals( left+"\n" );
+            if( idFound )
+                reductionVariables.put(left, callSomId);
+            return idFound;
+        }
+
+        private Map<String, List<String>> checkReduction(CPPParser.ControlStructureBodyContext ctx) {
         Map<String, String> reductionVariables = new TreeMap<>();
 
         //if one assignment does not support reduction, the entire 'for' neither

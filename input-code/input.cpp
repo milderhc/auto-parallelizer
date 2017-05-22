@@ -25,11 +25,13 @@ int main( ) {
         sum += i;
     }
 
-    int sum2 = 0, sum3 = 0, sum4 = 1;
+    int sum2 = 0, sum3 = 0, sum4 = 1, sum5 = 0, sum6 = 0;
     for (int i = 1; i < n; ++i) {
         sum2 -= f(i);
         sum3 += 2 * i + i * i + f(i);
         sum4 *= i;
+        sum5 = min( sum5 , max(i+i, i*i) ) ;
+        sum6 = max( sum6 , i*i*i ) ;
     }
 
     int tmp = 0;
