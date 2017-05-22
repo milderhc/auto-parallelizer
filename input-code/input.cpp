@@ -1,42 +1,34 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+#define pb      push_back
+#define show(x) cout << #x << ": " << x << endl;
 
 using namespace std;
 
 typedef long long ll;
-typedef pair<int, int> ii;
-typedef pair<int, ii> iii;
+typedef double lf;
+typedef complex<lf> pt;
+typedef vector<vector<int>> graph;
 
-const int MAX = 60006;
-const double EPS = 1e-6;
-const int INF = INT_MAX;
+const int MAX = 200007;
 
-double v[MAX], x[MAX];
-int n;
-
-int xd (int a) {
+int f (int a) {
     return a + 2;
 }
 
-int f1 () {
-    vector<int> a(10);
-    for (int i = 0; i < 10; ++i)
-        a[i] = i;
-}
-
-int f2() {
-    vector<int> b(10);
-    for (int i = 0; i < 10; ++i)
-        b[i] = xd(i);
-}
-
 int main( ) {
-//    vector<int> a(10);
-//    for (int i = 0; i < 10; ++i)
-//        a[i] = i;
-//    vector<int> b(10);
-//    for (int i = 0; i < 10; ++i)
-//        b[i] = function(i);
+    int sum = 0;
+    for (int i = 0; i < n; ++i)
+        sum += i;
 
-    f1();
-    f2();
+    for (int i = 0; i < n; ++i) {
+        sum += i;
+    }
+
+    int sum2 = 0, sum3 = 0, sum4 = 0;
+    for (int i = 0; i < n; ++i) {
+        sum += i;
+        sum2 = sum2 + f(a);
+        sum3 += 2 * i + i * i + f(a);
+        sum4 *= i;
+    }
 }

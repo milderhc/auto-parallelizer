@@ -1,12 +1,12 @@
     package parallelizer.model;
 
     import gen.CPPParser;
-    import javafx.util.Pair;
-    import org.antlr.v4.runtime.ParserRuleContext;
-    import org.antlr.v4.runtime.misc.Interval;
-    import parallelizer.Translator;
+import javafx.util.Pair;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Interval;
+import parallelizer.Translator;
 
-    import java.util.*;
+import java.util.*;
 
     /**
  * Created by milderhc on 16/05/17.
@@ -213,14 +213,14 @@ public class Function implements Comparable<Function> {
         if (functionCtx == null)
             return "";
 
-        StringBuilder parellized = new StringBuilder();
+        StringBuilder parallelized = new StringBuilder();
 
         if (functionCtx instanceof CPPParser.FunctionContext)
-            parellized.append( getText( ((CPPParser.FunctionContext) functionCtx).functionSign() ) );
+            parallelized.append( getText( ((CPPParser.FunctionContext) functionCtx).functionSign() ) );
         else
-            parellized.append( getText( ((CPPParser.MainContext) functionCtx).mainSign() ) );
+            parallelized.append( getText( ((CPPParser.MainContext) functionCtx).mainSign() ) );
 
-        parellized.append(" {\n");
+        parallelized.append(" {\n");
 
         List<List<Block>> sections = new LinkedList<>();
         TreeMap<Integer, Integer> currentSection = new TreeMap<>();
@@ -240,61 +240,134 @@ public class Function implements Comparable<Function> {
         }
 
         if (declarationBlock != null)
-            parellized.append(declarationBlock.getText(1));
+            parallelized.append(declarationBlock.getText(1));
 
         sections.forEach(section -> {
             if (section.size() > 1) {
-                parellized.append("\t#pragma omp parallel sections\n\t{\n");
+                parallelized.append("\t#pragma omp parallel sections\n\t{\n");
                 section.forEach(block -> {
-                    parellized.append("\t\t#pragma omp section\n\t\t{\n");
-                    if (!block.getInstructions().isEmpty() && block.getInstructions().get(0).forBlock() != null) {
-                        checkReduction(block.getInstructions().get(0).forBlock(), parellized, 3);
+                    parallelized.append("\t\t#pragma omp section\n\t\t{\n");
+                    List<CPPParser.InstructionContext> instructions = block.getInstructions();
+                    if (!instructions.isEmpty() && instructions.get(0).forBlock() != null) {
+                        Map<String, List<String>> reduction = checkReduction(instructions.get(0).forBlock().controlStructureBody());
+                        parallelizeReduction(block, reduction, parallelized, 3);
                     } else
-                        parellized.append(block.getText(3));
-                    parellized.append("\t\t}\n");
+                        parallelized.append(block.getText(3));
+                    parallelized.append("\t\t}\n");
                 });
-                parellized.append("\t}\n");
+                parallelized.append("\t}\n");
             } else {
-                if (!section.get(0).getInstructions().isEmpty() &&
-                        section.get(0).getInstructions().get(0).forBlock() != null) {
-                    checkReduction(section.get(0).getInstructions().get(0).forBlock(), parellized, 3);
+                List<CPPParser.InstructionContext> instructions = section.get(0).getInstructions();
+                if (!instructions.isEmpty() &&
+                        instructions.get(0).forBlock() != null) {
+                    Map<String, List<String>> reduction = checkReduction(instructions.get(0).forBlock().controlStructureBody());
+                    parallelizeReduction(section.get(0), reduction, parallelized, 1);
                 } else
-                    parellized.append(section.get(0).getText(1));
+                    parallelized.append(section.get(0).getText(1));
             }
         });
 
         if (returnBlock != null)
-            parellized.append(returnBlock.getText(1));
-        parellized.append("}\n");
+            parallelized.append(returnBlock.getText(1));
+        parallelized.append("}\n");
 
-        return parellized.toString();
+        return parallelized.toString();
     }
 
-    private void checkReduction(CPPParser.ForBlockContext forBlockContext, StringBuilder parellized, int tabs) {
-        if (forBlockContext.controlStructureBody().scope() != null) {
-            Set<String> read = new TreeSet<>(), written = new TreeSet<>();
-            forBlockContext.controlStructureBody().scope().instruction().forEach(inst -> {
+    private void parallelizeReduction(Block block, Map<String, List<String>> reduction, StringBuilder parallelized, int tabs) {
+        if (reduction.isEmpty())
+            return;
+
+        String prefix = "";
+        for (int i = 0; i < tabs; ++i) prefix = prefix + "\t";
+
+        parallelized.append(prefix + "#pragma omp parallel for");
+        reduction.forEach((op, ids) -> {
+            parallelized.append(" reduction(" + op + ":");
+            for (int i = 0; i < ids.size(); ++i) {
+                if (i > 0)
+                    parallelized.append(",");
+                parallelized.append(ids.get(i));
+            }
+            parallelized.append(")");
+        });
+
+        parallelized.append("\n" + block.getText(tabs));
+    }
+
+    private void checkAssignment (CPPParser.AssignmentContext assign, Map<String, String> possibleReductionVariables) {
+        //Only scalar assignments are valid
+        if (assign.callSomething().accessBrackets().isEmpty()) {
+            String left = assign.callSomething().getText();
+
+            boolean reductionVariable = true;
+            if (possibleReductionVariables.containsKey(left)) {
+                reductionVariable = false;
+                possibleReductionVariables.remove(left);
+            }
+
+            String op = "";
+            if (assign.properAssignment().assignmentOp().size() == 1) {
+                op = assign.properAssignment().assignmentOp().get(0).getText();
+                Pair<List<String>, Integer> analyzed = analyze(Translator.getText(assign.properAssignment().expression()));
+
+                if (analyzed.getValue() != 0)
+                    reductionVariable = false;
+
+                List<String> right = analyzed.getKey();
+                int occurrences = 0;
+                for (String id : right) {
+                    if (possibleReductionVariables.containsKey(id))
+                        possibleReductionVariables.remove(id);
+                    if (id.equals(left))
+                        ++occurrences;
+                }
+
+                if ("+=@-=@*=@|=@&=@^=".contains(op)) {
+                    if (occurrences != 0)
+                        reductionVariable = false;
+                } else if (op.equals("=")) {
+                    if (occurrences != 1)
+                        reductionVariable = false;
+                } else
+                    reductionVariable = false;
+
+            } else
+                reductionVariable = false;
+
+            if (reductionVariable)
+                possibleReductionVariables.put(left, op.replace("=", ""));
+        }
+    }
+
+    private Map<String, List<String>> checkReduction(CPPParser.ControlStructureBodyContext ctx) {
+        Map<String, String> possibleReductionVariables = new TreeMap<>();
+        
+        if (ctx.scope() != null) {
+            ctx.scope().instruction().forEach(inst -> {
                 if (inst.assignmentBlock() != null) {
                     inst.assignmentBlock().assignment().forEach(assign -> {
-                        if (assign.callSomething().accessBrackets() != null) {
-                            String left = assign.callSomething().getText();
-                            if (assign.properAssignment().assignmentOp().size() == 1) {
-                                String op = assign.properAssignment().assignmentOp().get(0).getText();
-                                if ("+=@-=@*=@|=@&=@^=".contains(op)) {
-                                    List<String> list = analyze(Translator.getText(assign.properAssignment().expression())).getKey();
-
-                                } else {
-
-
-                                }
-                            }
-                        }
+                        checkAssignment(assign, possibleReductionVariables);
                     });
                 }
             });
-        } else if (forBlockContext.controlStructureBody().instruction() != null) {
-
+        } else if (ctx.instruction() != null) {
+            if (ctx.instruction().assignmentBlock() != null) {
+                ctx.instruction().assignmentBlock().assignment().forEach(assign -> {
+                    checkAssignment(assign, possibleReductionVariables);
+                });
+            }
         }
+        
+        Map<String, List<String>> reductionOperations = new TreeMap<>();
+        possibleReductionVariables.forEach((id, op) -> {
+            if (!reductionOperations.containsKey(op))
+                reductionOperations.put(op, new LinkedList<>());
+
+            reductionOperations.get(op).add(id);
+        });
+
+        return reductionOperations;
     }
 
 

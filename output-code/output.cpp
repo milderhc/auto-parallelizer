@@ -1,36 +1,42 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+#define pb      push_back
+#define show(x) cout << #x << ": " << x << endl;
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> ii;
-typedef pair<int, ii> iii;
-const int MAX = 60006;
-const double EPS = 1e-6;
-const int INF = INT_MAX;
-double v[MAX], x[MAX];
-int n;
-int f1 () {
-	vector<int> a(10);
-	for (int i = 0; i < 10; ++i)
-        a[i] = i;
-}
-int xd (int a) {
+typedef double lf;
+typedef complex<lf> pt;
+typedef vector<vector<int>> graph;
+const int MAX = 200007;
+int f (int a) {
 	return a + 2;
 }
-int f2() {
-	vector<int> b(10);
-	for (int i = 0; i < 10; ++i)
-        b[i] = xd(i);
-}
 int main( ) {
+	int sum = 0;
+	int sum2 = 0, sum3 = 0, sum4 = 0;
 	#pragma omp parallel sections
 	{
 		#pragma omp section
 		{
-			f2();
+			#pragma omp parallel for reduction(*:sum4) reduction(+:sum,sum3)
+			for (int i = 0; i < n; ++i) {
+        sum += i;
+        sum2 = sum2 + f(a);
+        sum3 += 2 * i + i * i + f(a);
+        sum4 *= i;
+    }
 		}
 		#pragma omp section
 		{
-			f1();
+			#pragma omp parallel for reduction(+:sum)
+			for (int i = 0; i < n; ++i) {
+        sum += i;
+    }
+		}
+		#pragma omp section
+		{
+			#pragma omp parallel for reduction(+:sum)
+			for (int i = 0; i < n; ++i)
+        sum += i;
 		}
 	}
 }
