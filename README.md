@@ -13,6 +13,7 @@ Task parallelization is included by default and other options can be set as foll
 -o, -output <arg>     Output file
 -r, -reduction        Enable the for parallelization of reduction operations 
 -h, -help             Print this message
+-v, -verbose          Print all the data found inside the source code
 ```
 
 ## Example
