@@ -149,14 +149,14 @@ public class Block implements Comparable<Block> {
 
     public String getText(int tabs) {
         String prefix = "";
-        while (tabs-- > 1) prefix = prefix + "\t";
+        while (tabs-- > 0) prefix = prefix + "\t";
         StringBuilder builder = new StringBuilder();
         String finalPrefix = prefix;
 
         instructions.forEach(inst -> {
             String text = Translator.getText(inst);
             boolean addPrefix = false;
-            builder.append(finalPrefix + "\t");
+            builder.append(finalPrefix);
             for (char c : text.toCharArray()) {
                 if (addPrefix) {
                     addPrefix = false;
