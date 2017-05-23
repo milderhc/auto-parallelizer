@@ -6,12 +6,12 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import parallelizer.model.Function;
+import parallelizer.model.Program;
 import visitors.CallGraphVisitor;
 import visitors.FunctionVisitor;
 import visitors.GlobalVisitor;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -20,6 +20,8 @@ import java.util.*;
 public class Translator {
 
     public static Program program;
+
+    public static final String OUTPUT_CODE_FOLDER = "output-code";
 
     private void visitFunctions (CPPParser parser) {
         parser.reset();
@@ -184,8 +186,7 @@ public class Translator {
         addGlobalStatements(parser);
 
         parallelize(functionsOrder);
-
-        program.exportCode("output.cpp");
+        exportCode("output.cpp");
     }
 
     public static String getText (ParserRuleContext ctx) {
@@ -195,13 +196,14 @@ public class Translator {
         return ctx.start.getInputStream().getText(interval) + "\n";
     }
 
-    public static void main(String[] args) throws IOException {
-//        String source = "input-code/DanielK/782D.cpp";
-        String source = "input-code/Examples/task_parallelization.cpp";
+    public void exportCode (String file) throws FileNotFoundException, UnsupportedEncodingException {
+        String filename = OUTPUT_CODE_FOLDER + "/" + file;
+        printToFile(filename, program.getTranslatedCode().toString());
+    }
 
-        Translator translator = new Translator();
-        translator.translate(source);
-
-
+    public void printToFile (String filename, String s) throws FileNotFoundException, UnsupportedEncodingException {
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        writer.print(s);
+        writer.close();
     }
 }

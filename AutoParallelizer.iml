@@ -7,7 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="jar:///usr/local/lib/antlr-4.6-complete.jar!/" />
@@ -16,7 +16,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="jar:///usr/local/lib/jsoup-1.10.2.jar!/" />
@@ -28,7 +28,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/antlr-4.7-complete.jar!/" />
+          <root url="jar:///usr/local/lib/commons-cli-1.4/commons-cli-1.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

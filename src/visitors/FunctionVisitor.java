@@ -2,7 +2,7 @@ package visitors;
 
 import gen.CPPBaseVisitor;
 import gen.CPPParser;
-import parallelizer.Program;
+import parallelizer.model.Program;
 import parallelizer.model.Function;
 
 /**

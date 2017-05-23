@@ -23,7 +23,7 @@ public class Function implements Comparable<Function> {
     private String id;
     private CPPParser.ScopeContext bodyCtx;
     private ParserRuleContext functionCtx;
-    private Set<String> aliveVariables, deadVariables; //in case a Block is just a function call
+    private Set<String> aliveVariables, deadVariables;
 
     public Function(String id, CPPParser.ScopeContext bodyCtx, ParserRuleContext functionCtx) {
         this.id = id;
@@ -122,13 +122,6 @@ public class Function implements Comparable<Function> {
 
     public static String getVirtualName (CPPParser.FunctionContext ctx) {
         StringBuilder name = new StringBuilder(ctx.functionSign().id().getText());
-//        if( bodyCtx.parameters() != null ) {
-//            List<CPPParser.DatatypeContext> datatype = bodyCtx.parameters().datatype();
-//            datatype.forEach(currentType -> {
-//                name.append("-" + currentType.getText());
-//            });
-//        }
-
         if (ctx.functionSign().parameters() != null) {
             name.append("-" + ctx.functionSign().parameters().datatype().size());
         }

@@ -10,11 +10,10 @@ import java.util.*;
  * Created by milderhc on 16/05/17.
  */
 public class Block implements Comparable<Block> {
+    
     private LinkedList<CPPParser.InstructionContext> instructions;
     private Set<String> aliveVariables, deadVariables;
     private int id;
-
-
 
     public Block (int id) {
         instructions = new LinkedList<>(); this.id = id;
@@ -77,7 +76,7 @@ public class Block implements Comparable<Block> {
             getAliveDeadVariablesControlStructureBody(inst.whileBlock().controlStructureBody());
             new VariableVisitor(inst.whileBlock().expression(), aliveVariables, deadVariables);
         } else if (inst.switchBlock() != null) {
-            //TODO switch body
+            //switch body is not implemented yet
         } else {
             new VariableVisitor(inst.doWhileBlock().expression(), aliveVariables, deadVariables);
 
@@ -153,8 +152,6 @@ public class Block implements Comparable<Block> {
         while (tabs-- > 1) prefix = prefix + "\t";
         StringBuilder builder = new StringBuilder();
         String finalPrefix = prefix;
-
-//        instructions.forEach(inst -> builder.append(finalPrefix + Translator.getText(inst)));
 
         instructions.forEach(inst -> {
             String text = Translator.getText(inst);
