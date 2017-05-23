@@ -1,3 +1,0 @@
-input-code/DanielK/208D.cpp
-input-code/DanielK/474D.cpp
-input-code/DanielK/782D.cpp

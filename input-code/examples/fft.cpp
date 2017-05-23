@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <sys/time.h>
 
 using namespace std;
 
@@ -38,11 +39,13 @@ void dft(cp *a,int n,int flag=1){
     }
 }
 //n debe ser potencia de 2, y debe ser mayor igual al tamaño de salida, no de entrada
-void mul(cp* a,cp* b,int* c,int n){
+void mul(cp* a, cp* b, int* c,int n){
     dft(a,n);dft(b,n);
     for (int i=0;i<n;i++)a[i]=a[i]*b[i];
-    dft(a,n,-1);
-    for (int i=0;i<n;i++) c[i] += int( round( a[i].real()/n ) );
+    for( int i = 0; i < 1; ++i ) {
+        dft(a,n,-1);
+        for (int i=0;i<n;i++) c[i] += int( round( a[i].real()/n ) );
+    }
 }
 
 int get_power_2( int p ) {
@@ -105,7 +108,8 @@ void print_ans( string s1, string s2, int n ) {
     for( int i = 0; i < n; ++i )
         c4[ i ] += c1[ i ] + c2[ i ] + c3[ i ];
     reverse( s2.begin( ), s2.end( ) );
-    string ans = string( int( s2.size( ) )-1, ' ' )+s1+string( int( s2.size( ) )-1, ' ' );
+    string ans;
+    ans = string( int( s2.size( ) )-1, ' ' )+s1+string( int( s2.size( ) )-1, ' ' );
     int id = 0;
     for( int i = 0; i < n; ++i )
         if( real( c4[ i ] ) >= real( c4[ id ] ) )
@@ -126,7 +130,6 @@ void print_ans( string s1, string s2, int n ) {
 }
 
 void fft( string s1, string s2, int n ) {
-
     mul( a1, b1, c1, n );
     mul( a2, b2, c2, n );
     mul( a3, b3, c3, n );
@@ -135,6 +138,12 @@ void fft( string s1, string s2, int n ) {
 
 int main(){
 
+    freopen("input", "r", stdin);
+    freopen("output", "w", stdout);
+
+    struct timeval start, end;
+    gettimeofday(&start, 0);
+
     string s1, s2;
     while( cin >> s1 >> s2 ) {
         int p = int( s1.size( )+s2.size( )-1 ), n = get_power_2( p );
@@ -142,7 +151,12 @@ int main(){
         preSet( s1,s2, n );
         fft( s1, s2, n );
         print_ans( s1, s2, n );
-        cout << '\n';
+        cout << endl;
     }
+
+    gettimeofday(&end, 0);
+    double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;
+    cout << "Time difference: " << delta;
+
     return 0;
 }

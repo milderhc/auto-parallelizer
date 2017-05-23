@@ -1,5 +1,0 @@
-input-code/milderhc/785C.cpp
-input-code/milderhc/785B.cpp
-input-code/milderhc/785A.cpp
-input-code/milderhc/782B.cpp
-input-code/milderhc/782C.cpp

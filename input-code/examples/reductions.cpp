@@ -16,7 +16,7 @@ int f (int a) {
 }
 
 int main( ) {
-
+    int n = 10000000;
     int sum2 = 0, sum3 = 0, sum4 = 1, sum5 = 0, sum6 = 0, sum7 = 0, sum8 = 0, sum9 = 0;
     for (int i = 1; i < n; ++i) {
         sum2 -= f(i);

@@ -41,7 +41,7 @@ public class AutoParallelizer {
                 return;
             }
             if (!line.hasOption("input")) {
-                System.err.println("You need to prodive an input file");
+                System.err.println("You need to provide an input file");
                 return;
             }
 
