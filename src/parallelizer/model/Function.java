@@ -104,8 +104,6 @@ public class Function implements Comparable<Function> {
         if (bodyCtx == null)
             return;
         getAliveDeadVariables();
-        //Make the dependencies between blocks with the information of live and dead variables
-        //Parallelize the blocks that don't have dependencies
     }
 
     private void getAliveDeadVariables() {

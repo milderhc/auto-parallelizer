@@ -60,23 +60,23 @@ public class Translator {
         return order;
     }
 
-    private void deadCodeEliminitation (Function current,
+    private void deadCodeElimination (Function current,
                                                         Set<Function> visited, LinkedList<Function> newOrder) {
         visited.add(current);
         program.getCallGraph().get(current).forEach(neigh -> {
             if (!visited.contains(neigh))
-                deadCodeEliminitation(neigh, visited, newOrder);
+                deadCodeElimination(neigh, visited, newOrder);
         });
         newOrder.add(current);
     }
 
-    private LinkedList<Function> deadCodeEliminitation (LinkedList<Function> order) {
+    private LinkedList<Function> deadCodeElimination (LinkedList<Function> order) {
         Set<Function> visited = new TreeSet<>();
         LinkedList<Function> newOrder = new LinkedList<>();
 
         order.forEach(f -> {
             if (f.getId().equals("main"))
-                deadCodeEliminitation(f, visited, newOrder);
+                deadCodeElimination(f, visited, newOrder);
         });
 
         return newOrder;
@@ -151,7 +151,7 @@ public class Translator {
         System.out.println();
         findDependencies(functionsOrder);
 
-        functionsOrder = deadCodeEliminitation(functionsOrder);
+        functionsOrder = deadCodeElimination(functionsOrder);
 
         functionsOrder.forEach( f -> {
             System.out.println("FUNCTION " + f.getId() );
@@ -197,7 +197,7 @@ public class Translator {
 
     public static void main(String[] args) throws IOException {
 //        String source = "input-code/DanielK/782D.cpp";
-        String source = "input-code/input.cpp";
+        String source = "input-code/Examples/task_parallelization.cpp";
 
         Translator translator = new Translator();
         translator.translate(source);
