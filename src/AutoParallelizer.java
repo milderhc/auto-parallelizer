@@ -28,7 +28,8 @@ public class AutoParallelizer {
         options.addOption("i", "input", true, "Input file");
         options.addOption("o", "output", true, "Output file");
         options.addOption("r", "reduction", false, "Enable the for parallelization of reduction operations");
-        options.addOption("h", "help", false, "Prints this message");
+        options.addOption("h", "help", false, "Print this message");
+        options.addOption("v", "verbose", false, "Print all the data found inside the source code to be able to parallelize");
 
         CommandLineParser parser = new DefaultParser();
         try {
@@ -46,8 +47,9 @@ public class AutoParallelizer {
             String input = line.getOptionValue("input");
             String output = line.getOptionValue("output", "parallelized_" + input);
             boolean reduction = line.hasOption("reduction");
+            boolean verbose = line.hasOption("verbose");
             Translator translator = new Translator();
-            translator.translate(input, output, reduction);
+            translator.translate(input, output, reduction, verbose);
         }
         catch( ParseException exp ) {
             System.err.println( "Parsing failed.  Reason: " + exp.getMessage() );

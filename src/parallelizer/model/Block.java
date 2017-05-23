@@ -119,13 +119,16 @@ public class Block implements Comparable<Block> {
 
     @Override
     public String toString () {
-        StringBuilder builder = new StringBuilder("Block #" + id + "\nInstructions\n");
-        instructions.forEach( inst -> builder.append(inst.getText() + "\n") );
+        StringBuilder builder = new StringBuilder("Block #" + id + "\nInstructions:\n");
+        builder.append("..........................................\n");
+        instructions.forEach( inst -> builder.append(Translator.getText(inst) + "\n\n") );
+        builder.append("..........................................\n");
         builder.append("Alive variables [ ");
         aliveVariables.forEach(alive -> builder.append(alive + " "));
         builder.append("]\nDead variables [ ");
         deadVariables.forEach(dead -> builder.append(dead + " "));
-        builder.append("]");
+        builder.append("]\n");
+        builder.append("..........................................");
         return builder.toString();
     }
 
@@ -141,7 +144,7 @@ public class Block implements Comparable<Block> {
         return id;
     }
 
-
+    
     @Override
     public int compareTo(Block o) {
         return id - o.getId();

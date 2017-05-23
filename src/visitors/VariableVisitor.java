@@ -55,7 +55,6 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
         int type = pair.getValue();
         if (type == 0) {
             variable.forEach(id -> {
-//                deadVariables.remove(rightId);
                 aliveVariables.add(id);
             });
         } else if (type == 1) {
@@ -66,7 +65,6 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
             aliveVariables.add("cin");
         } else if (type == 2) {
             variable.forEach(id -> {
-//                deadVariables.remove(id);
                 aliveVariables.add(id);
             });
         }
@@ -80,8 +78,6 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
     @Override
     public T visitProperAssignment (CPPParser.ProperAssignmentContext ctx) {
         analyzeExpression(Function.analyze(getText(ctx.expression())));
-        System.out.println();
-
         return visitChildren(ctx);
     }
 
@@ -102,7 +98,6 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
             deadVariables.add(leftId);
         } else {
             String leftId = ctx.callSomething().id().getText();
-//            deadVariables.remove(leftId);
             aliveVariables.add(leftId);
             deadVariables.add(leftId);
         }
@@ -116,13 +111,11 @@ public class VariableVisitor<T> extends CPPBaseVisitor<T> {
             String name = Function.getVirtualName(ctx);
             if( Translator.program.getDefinedFunctions().containsKey(name) ) {
                 Function f = Translator.program.getDefinedFunctions().get(name);
-                System.out.println(name + " " +f);
                 f.getDeadVariables().forEach(var -> {
                     aliveVariables.remove(var);
                     deadVariables.add(var);
                 });
                 f.getAliveVariables().forEach(var -> {
-//                    deadVariables.remove(var);
                     aliveVariables.add(var);
                 });
             }
