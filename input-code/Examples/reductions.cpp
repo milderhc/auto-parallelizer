@@ -17,14 +17,17 @@ int f (int a) {
 
 int main( ) {
 
-    int sum2 = 0, sum3 = 0, sum4 = 1, sum5 = 0, sum6 = 0;
+    int sum2 = 0, sum3 = 0, sum4 = 1, sum5 = 0, sum6 = 0, sum7 = 0, sum8 = 0, sum9 = 0;
     for (int i = 1; i < n; ++i) {
         sum2 -= f(i);
         sum3 += 2 * i + i * i + f(i);
         sum4 *= i;
         sum5 = min( sum5 , max(i+i, i*i) ) ;
         sum6 = ( ( ( ( max( sum6 , i*i*i ) ) ) ) );
+        sum7 ^= i | f(i);
+        sum8 |= i ^ f(i);
+        sum9 &= i+10;
     }
 
-    cout << sum2 << ' ' << sum3 << ' ' << sum4 << ' ' << sum5 << ' ' << sum6 << endl;
+    cout << sum2 << ' ' << sum3 << ' ' << sum4 << ' ' << sum5 << ' ' << sum6 << ' ' << sum7  << ' ' << sum8 << ' ' << sum9 << endl;
 }

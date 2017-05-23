@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="AutoParallelizer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/AutoParallelizer_jar</output-path>
+    <root id="archive" name="AutoParallelizer.jar">
+      <element id="module-output" name="AutoParallelizer" />
+      <element id="extracted-dir" path="/usr/local/lib/jsoup-1.10.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/local/lib/antlr-4.6-complete.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/local/lib/commons-cli-1.4/commons-cli-1.4.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

@@ -200,7 +200,7 @@ public class Function implements Comparable<Function> {
         return blocksOrder;
     }
 
-    public String parallelize () {
+    public String parallelize (boolean reductionOperation) {
         if (functionCtx == null)
             return "";
 
@@ -239,20 +239,28 @@ public class Function implements Comparable<Function> {
                 section.forEach(block -> {
                     parallelized.append("\t\t#pragma omp section\n\t\t{\n");
                     List<CPPParser.InstructionContext> instructions = block.getInstructions();
-                    if (!instructions.isEmpty() && instructions.get(0).forBlock() != null) {
-                        Map<String, List<String>> reduction = checkReduction(instructions.get(0).forBlock().controlStructureBody());
-                        parallelizeReduction(block, reduction, parallelized, 3);
-                    } else
+
+                    if (reductionOperation) {
+                        if (!instructions.isEmpty() && instructions.get(0).forBlock() != null) {
+                            Map<String, List<String>> reduction = checkReduction(instructions.get(0).forBlock().controlStructureBody());
+                            parallelizeReduction(block, reduction, parallelized, 3);
+                        } else
+                            parallelized.append(block.getText(3));
+                    } else {
                         parallelized.append(block.getText(3));
+                    }
                     parallelized.append("\t\t}\n");
                 });
                 parallelized.append("\t}\n");
             } else {
                 List<CPPParser.InstructionContext> instructions = section.get(0).getInstructions();
-                if (!instructions.isEmpty() &&
-                        instructions.get(0).forBlock() != null) {
-                    Map<String, List<String>> reduction = checkReduction(instructions.get(0).forBlock().controlStructureBody());
-                    parallelizeReduction(section.get(0), reduction, parallelized, 1);
+                if (reductionOperation) {
+                    if (!instructions.isEmpty() &&
+                            instructions.get(0).forBlock() != null) {
+                        Map<String, List<String>> reduction = checkReduction(instructions.get(0).forBlock().controlStructureBody());
+                        parallelizeReduction(section.get(0), reduction, parallelized, 1);
+                    } else
+                        parallelized.append(section.get(0).getText(1));
                 } else
                     parallelized.append(section.get(0).getText(1));
             }

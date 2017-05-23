@@ -112,16 +112,13 @@ public class Translator {
         visitor.visit(tree);
     }
 
-    private void parallelize(LinkedList<Function> functionsOrder) {
-        functionsOrder.forEach( f -> program.add(f.parallelize()) );
+    private void parallelize(LinkedList<Function> functionsOrder, boolean reduction) {
+        functionsOrder.forEach( f -> program.add(f.parallelize(reduction)) );
     }
 
-    public void translate (String inputFilename) throws IOException {
-        ANTLRInputStream input;
-        if (inputFilename == null)
-            input = new ANTLRInputStream(System.in);
-        else
-            input = new ANTLRInputStream(new FileInputStream(inputFilename));
+    public void translate (String inputFilename, String outputFilename, boolean reduction) throws IOException {
+        ANTLRInputStream input = new ANTLRInputStream(new FileInputStream(inputFilename));
+
         CPPLexer lexer = new CPPLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         CPPParser parser = new CPPParser(tokens);
@@ -185,8 +182,8 @@ public class Translator {
 
         addGlobalStatements(parser);
 
-        parallelize(functionsOrder);
-        exportCode("output.cpp");
+        parallelize(functionsOrder, reduction);
+        exportCode(outputFilename);
     }
 
     public static String getText (ParserRuleContext ctx) {
@@ -197,8 +194,7 @@ public class Translator {
     }
 
     public void exportCode (String file) throws FileNotFoundException, UnsupportedEncodingException {
-        String filename = OUTPUT_CODE_FOLDER + "/" + file;
-        printToFile(filename, program.getTranslatedCode().toString());
+        printToFile(file, program.getTranslatedCode().toString());
     }
 
     public void printToFile (String filename, String s) throws FileNotFoundException, UnsupportedEncodingException {
