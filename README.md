@@ -60,3 +60,11 @@ int main () {
     cout << sum1 + sum2 << '\n';
 }
 ```
+
+## Considerations
+
+As you may know, parallel programming is very different from sequential programming and to achieve the best performance, hand parallelization is probably the best option. Thus, this software does not support some parallelization techniques. <br>
+The C++ grammar is limited, it may not support some features of C++11 and C++14. This is a beta version, the parallelization process is not guaranteed for some aspects of the language such as pointers and reference variables, these aspects require a further implementation.
+
+Take into account these considerations before parallelizing with our software.
+
