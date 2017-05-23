@@ -21,7 +21,8 @@ public class AutoParallelizer {
             "-i, -input <arg>\tInput file\n" +
             "-o, -output <arg>\tOutput file\n" +
             "-r, -reduction\t\tEnable the for parallelization of reduction operations\n" +
-            "-h, -help\t\tPrint this message" + "\n";
+            "-h, -help\t\tPrint this message" + "\n" +
+            "-v, -verbose\t\tPrint all the data found inside the source code" + "\n";
 
     public static void main(String[] args) throws IOException {
         Options options = new Options();
